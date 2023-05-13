@@ -11,7 +11,7 @@ public class ChatGPT : MonoBehaviour
     // 定义Chat API的URL
     private string m_ApiUrl = "https://api.openai.com/v1/chat/completions";
     // API key
-    private string m_OpenAI_Key = "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";
+    private string m_OpenAI_Key = "";
 
     //設置API KEY
     public string getApiKey()

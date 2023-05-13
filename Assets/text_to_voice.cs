@@ -40,8 +40,8 @@ public class text_to_voice
 // 
 
         // Creates an instance of a speech config with specified subscription key and service region.
-        string subscriptionKey = "61e975c297a34ea18d5b03f68161f818";
-        string subscriptionRegion = "eastus";
+        string subscriptionKey = "";
+        string subscriptionRegion = "";
         
             var config = SpeechConfig.FromSubscription(subscriptionKey, subscriptionRegion);
             // Note: the voice setting will not overwrite the voice element in input SSML.
