@@ -49,7 +49,7 @@ public class inputChat : MonoBehaviour
 
     private async void InitializeSpeechRecognizer()
     {
-        var configuration = SpeechConfig.FromSubscription("a45bb91c406243da85280575aa6578a2", "eastasia");
+        var configuration = SpeechConfig.FromSubscription("", "");
         configuration.SpeechRecognitionLanguage = "zh-TW";
 
         // 初始化 SpeechRecognizer 物件
