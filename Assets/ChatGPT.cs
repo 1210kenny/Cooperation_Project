@@ -79,7 +79,8 @@ public class ChatGPT : MonoBehaviour
     public IEnumerator GetPostData(
         string _postWord,   //輸入訊息
         System.Action<string> _callback //異步回傳函式
-    ){
+    )
+    {
 
         print(_postWord);
         //緩存發送的訊息
