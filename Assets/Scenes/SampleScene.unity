@@ -287,6 +287,7 @@ MonoBehaviour:
   chatItem: {fileID: 6373853984033461017, guid: bce2b4ed04e3a864d959b65931af08f9, type: 3}
   chatInput: {fileID: 1593841893}
   chatGPT: {fileID: 208691323}
+  ApiKey: []
 --- !u!1 &265928829
 GameObject:
   m_ObjectHideFlags: 0
