@@ -10,12 +10,13 @@ public class text_to_voice
     static string speechKey = Environment.GetEnvironmentVariable("SPEECH_KEY");
     static string speechRegion = Environment.GetEnvironmentVariable("SPEECH_REGION");
 
-    public static Microsoft.CognitiveServices.Speech.SpeechConfig config_ = SpeechConfig.FromSubscription("", "");
+    public static Microsoft.CognitiveServices.Speech.SpeechConfig config_;
     public static SpeechSynthesizer synthesizer;
 
 
-    public text_to_voice()
+    public text_to_voice(string key, string region)
     {
+        config_ = SpeechConfig.FromSubscription(key, region);
         config_.SpeechSynthesisVoiceName = "zh-CN-XiaoxiaoNeural";
         synthesizer = new SpeechSynthesizer(config_);
     }

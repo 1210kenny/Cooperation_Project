@@ -42,12 +42,30 @@ public class inputChat : MonoBehaviour
     private string message;
 
     //AI語音播放器
-    private text_to_voice Speaker = new text_to_voice();
+    private text_to_voice Speaker;
     //語音辨識工具
-    private Microsoft.CognitiveServices.Speech.SpeechConfig configuration = SpeechConfig.FromSubscription("", "");
+    private Microsoft.CognitiveServices.Speech.SpeechConfig configuration;
+
+    [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
     void Start()
     {
+        //讀取現有對話紀錄
+        try
+        {
+            var inputString = File.ReadAllText("Keys.json");
+            ApiKey = JsonUtility.FromJson<Serialization<ApiKeyData>>(inputString).ToList();
+        }
+        //無對話紀錄 則創建空紀錄檔案
+        catch (Exception e)
+        {
+            print("No have Key file.");
+        }
+        //AI語音播放器
+        Speaker = new text_to_voice(ApiKey[0].key, ApiKey[0].region);
+        configuration = SpeechConfig.FromSubscription(ApiKey[1].key, ApiKey[1].region);
+        chatGPT.setApiKey(ApiKey[2].key);
+
         configuration.SpeechRecognitionLanguage = "zh-TW";
         //Button btn = yourButton.GetComponent<Button>();
         //btn.onClick.AddListener(TaskOnClick);
@@ -257,4 +275,12 @@ public class Serialization<T>
     {
         this.target = target;
     }
+}
+
+// API金鑰 資料結構
+[Serializable]
+public class ApiKeyData
+{
+    public string key; // 使用模型
+    public string region; // 對話紀錄
 }
