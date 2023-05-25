@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using static ChatGPT;
 using System.IO;
 using TreeEditor;
+using System.Linq;
 
 public class inputChat : MonoBehaviour
 {
@@ -41,6 +42,10 @@ public class inputChat : MonoBehaviour
     //輸入語音訊息
     private string message;
 
+    //上次回傳訊息
+    private string last_callback = "fjweiofwoanow;iefnoiwefnowfnowe";
+    //AI暫停播放關鍵字
+    private const string callAI = "暫停播放";
     //AI語音播放器
     private text_to_voice Speaker;
     //語音辨識工具
@@ -119,11 +124,25 @@ public class inputChat : MonoBehaviour
 
         //語音辨識回傳
         var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
-
+        
         //確認語音辨識
         if (result.Reason == ResultReason.RecognizedSpeech)
         {
             newMessage = result.Text;
+        }
+        //強制結束播放（不用等回傳到）ChatGPT的時間
+        var check_num1 = ClassSim.MatchKeywordSim(callAI, newMessage);
+        if(check_num1 >= 0.5){
+            Rec = 0;
+            //停止現有的AI對話與音輸出
+            Speaker.Mute();
+            return;
+        }
+        //呼叫字串比較，只要大於一定值就直接無視
+        var check_num = ClassSim.MatchKeywordSim(last_callback, newMessage);
+        if(check_num >= 0.5){
+            Rec = 0;
+            return;
         }
 
         lock (threadLocker)
@@ -194,6 +213,7 @@ public class inputChat : MonoBehaviour
         //取得回傳訊息
         _callback = _callback.Trim();
         print(_callback);
+        last_callback = _callback;
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
         var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
@@ -242,8 +262,10 @@ public class inputChat : MonoBehaviour
             if (Rec == 2)
             {
                 Rec = 0;
+                
                 if (!string.IsNullOrEmpty(message))
                 {
+                    
                     //停止現有的AI對話與音輸出
                     Speaker.Mute();
                     //輸入框顯示本次輸入的訊息
@@ -283,4 +305,33 @@ public class ApiKeyData
 {
     public string key; // 使用模型
     public string region; // 對話紀錄
+}
+
+//字串比較演算法
+public class ClassSim
+{
+    public static double MatchKeywordSim(string keyword, string matchkeyword)
+    {
+        List<char> keywordList = keyword.ToCharArray().ToList();
+        List<char> matchkeywordList = matchkeyword.ToCharArray().ToList();
+        List<char> unionKeyword = keywordList.Union(matchkeywordList).ToList<char>();
+        List<int> arrA = new List<int>();
+        List<int> arrB = new List<int>();
+        foreach (var str in unionKeyword)
+        {
+            arrA.Add(keywordList.Where(x => x == str).Count());
+            arrB.Add(matchkeywordList.Where(x => x == str).Count());
+        }
+        double num = 0;
+        double numA=0;
+        double numB=0;
+        for (int i = 0; i < unionKeyword.Count; i++)
+        { 
+            num+=arrA[i]*arrB[i];
+            numA+=Math.Pow(arrA[i], 2);
+            numB+=Math.Pow(arrB[i], 2);
+        }
+        double cos = num / (Math.Sqrt(numA) * Math.Sqrt(numB));
+        return cos;
+    }
 }
