@@ -208,11 +208,12 @@ public class inputChat : MonoBehaviour
     }
 
     //GPT訊息 回傳動作
-    private void CallBack(string _callback)
+    private void CallBack(string _callback, string emotion)
     {
         //取得回傳訊息
         _callback = _callback.Trim();
         print(_callback);
+        print(emotion);
         last_callback = _callback;
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;

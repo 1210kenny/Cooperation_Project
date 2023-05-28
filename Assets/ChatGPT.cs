@@ -57,7 +57,6 @@ public class ChatGPT : MonoBehaviour
         public List<MessageBody> choices;
     }
 
-
     // GPT返回訊息 本體 資料結構 
     [Serializable]
     private class MessageBody
@@ -78,7 +77,7 @@ public class ChatGPT : MonoBehaviour
     // GPT Post訊息
     public IEnumerator GetPostData(
         string _postWord,   //輸入訊息
-        System.Action<string> _callback //異步回傳函式
+        System.Action<string,string> _callback //異步回傳函式
     )
     {
 
@@ -118,11 +117,15 @@ public class ChatGPT : MonoBehaviour
                 if (_textback != null && _textback.choices.Count > 0)
                 {
 
-                    string _backMsg = _textback.choices[0].message.content;
+                    string _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
                     //緩存回傳訊息
                     m_DataList.Add(new SendData("assistant", _backMsg));
+
+                    //返回函式 並做情緒分析
+                    yield return inputAnalyze.GetPostData(_backMsg, _callback);
+
                     //返回函式
-                    _callback(_backMsg);
+                    //_callback(_backMsg, emotion);
                 }
 
             }
