@@ -57,6 +57,10 @@ public class inputChat : MonoBehaviour
     private bool firstEquipment = true;
     //語音辨識工具
     private Microsoft.CognitiveServices.Speech.SpeechConfig configuration;
+    //建立TextAsset
+    public TextAsset TxtFile;
+    //用來存放文本內容
+    private string Mytxt;       
 
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
@@ -84,6 +88,11 @@ public class inputChat : MonoBehaviour
 
         // 初始化 SpeechRecognizer 物件
         //InitializeSpeechRecognizer();
+
+        //讀取文本
+        Mytxt = ((TextAsset)Resources.Load("instruction")).text;
+        //測試
+        //print(Mytxt);
 
         //chatGPT(聊天) 預設角色
         chatGPT.m_DataList.Add(new SendData("system", "我是強尼，是你的生活幫手，可以幫你回答任何問題。"));
