@@ -63,7 +63,16 @@ public class inputAnalyze : MonoBehaviour
         //建構 WebRequest POST
         using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
         {
-            string _jsonText = JsonUtility.ToJson(new SendData("情感分析", ChineseProgram.ToSimplifiedChinese(text)));
+            string _jsonText;
+            try
+            {
+                _jsonText = JsonUtility.ToJson(new SendData("情感分析", ChineseProgram.ToSimplifiedChinese(text)));
+            }
+            catch
+            {
+                _jsonText = JsonUtility.ToJson(new SendData("情感分析", text));
+            }
+
             //轉存格式
             byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
             //導入request頭部資訊

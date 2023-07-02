@@ -119,7 +119,15 @@ public class ChatGPT : MonoBehaviour
                 if (_textback != null && _textback.choices.Count > 0)
                 {
 
-                    string _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
+                    string _backMsg;
+                    try
+                    {
+                        _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
+                    }
+                    catch
+                    {
+                        _backMsg = _textback.choices[0].message.content;
+                    }
                     //緩存回傳訊息
                     m_DataList.Add(new SendData("assistant", _backMsg));
 
@@ -177,7 +185,15 @@ public class ChatGPT : MonoBehaviour
                 MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
                 if (_textback != null && _textback.choices.Count > 0)
                 {
-                    string _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
+                    string _backMsg;
+                    try
+                    {
+                        _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
+                    }
+                    catch
+                    {
+                        _backMsg = _textback.choices[0].message.content;
+                    }
                     //緩存回傳訊息
                     e_DataList.Add(new SendData("assistant", _backMsg));
 
