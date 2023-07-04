@@ -14,40 +14,44 @@ public class AnimationControl : MonoBehaviour
 
     public void Set_Face_Default()
     {
-        animator.SetTrigger("Default");
+        animator.SetTrigger("Face_Default");
     }
 
     public void Set_Face_Fun()
     {
-        animator.SetTrigger("Fun");
+        animator.SetTrigger("Face_Fun");
     }
 
     public void Set_Face_Joy()
     {
-        animator.SetTrigger("Joy");
+        animator.SetTrigger("Face_Joy");
     }
 
     public void Set_Face_Surprised()
     {
-        animator.SetTrigger("Surprised");
+        animator.SetTrigger("Face_Surprised");
     }
 
     public void Set_Face_Angry()
     {
-        animator.SetTrigger("Angry");
+        animator.SetTrigger("Face_Angry");
     }
     public void Set_Face_Sorrow()
     {
-        animator.SetTrigger("Sorrow");
+        animator.SetTrigger("Face_Sorrow");
     }
 
     public void Set_Body_Angry()
     {
-        animator.SetTrigger("Body_angry");
+        animator.SetTrigger("Body_Angry");
     }
     public void Set_Body_FormalBow()
     {
         animator.SetTrigger("Body_FormalBow");
+    }
+    public void Set_Body_Bored()
+    {
+        animator.SetTrigger("Body_Bored");
     }
     public void Set_Body_InformalBow()
     {
@@ -63,6 +67,6 @@ public class AnimationControl : MonoBehaviour
     }
     public void Set_Body_Standing()
     {
-        animator.SetTrigger("Standing");
+        animator.SetTrigger("Body_Standing");
     }
 }
