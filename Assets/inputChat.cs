@@ -50,7 +50,6 @@ public class inputChat : MonoBehaviour
     private text_to_voice Speaker;
     //設備關鍵字
     private const string callEquipment = "操作設備";
-    private const string exitEquipment = "結束操作設備";
     //設備模式
     private bool equipmentMode = false;
     //觸發指令操作 (預設為進入設備模式 第一句話) 待指令集加入後改由偵測到指令集指令後觸發
@@ -95,9 +94,9 @@ public class inputChat : MonoBehaviour
         //print(Mytxt);
 
         //chatGPT(聊天) 預設角色
-        chatGPT.m_DataList.Add(new SendData("system", "我是強尼，是你的生活幫手，可以幫你回答任何問題。"));
+        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
         //chatGPT(設備) 預設角色
-        chatGPT.e_DataList.Add(new SendData("system", "你是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
+        chatGPT.e_DataList.Add(new SendData("system", "我是指令資料庫，請根據輸入文句選擇下列相對應的編號指令：\n1.開關電燈1號\n2.開關電燈二號\n3.播放、暫停音樂\n4.提供目前播放中的音樂叫什麼名字\n5.提供上一首播放的音樂叫什麼名字"));
 
         //讀取現有對話紀錄
         try
@@ -160,32 +159,16 @@ public class inputChat : MonoBehaviour
         if (result.Reason == ResultReason.RecognizedSpeech)
         {
             newMessage = result.Text;
-
+            //newMessage = "操作設備，請幫我開啟電燈。";
             //呼叫字串比較，不是由AI回答，並且提到"操作設備"則進入設備模式
             if (!equipmentMode)
             {
-                //只呼喚進入設備模式 (未包含指令)
+                //任務進入設備模式 (之後會由分析用戶任務導向的方式控制 目前仍由偵測關鍵詞進入)
                 var check_EquipmentMode_call = ClassSim.MatchKeywordSim(callEquipment, newMessage);
-                if (check_EquipmentMode_call >= 0.8)
-                {
-                    Rec = 0;
-                    equipmentMode = true;
-                    return;
-                }
-                //進入設備模式 並執行指令 (包含指令)
-                else if (check_EquipmentMode_call >= 0.4)
+                if (check_EquipmentMode_call >= 0.4)
                 {
                     equipmentMode = true;
-                }
-            }
-            else
-            {
-                //呼叫字串比較，不是由AI回答，並且提到"結束操作設備"則結束設備模式
-                var check_EquipmentMode_exit = ClassSim.MatchKeywordSim(exitEquipment, newMessage);
-                print(check_EquipmentMode_exit);
-                if (check_EquipmentMode_exit >= 0.4)
-                {
-                    newMessage = "(結束設備操作模式)";
+                    firstEquipment = true;
                 }
             }
         }
@@ -256,10 +239,22 @@ public class inputChat : MonoBehaviour
         //清空輸入框
         //chatInput.text = "";
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.text = " I :　" + _msg;
+        if (!equipmentMode || (equipmentMode && firstEquipment)) {
+            var vChatWindow = chatWindow.transform.localPosition;
+            var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
+            itemGround.transform.parent = chatWindow.transform;
+            itemGround.text = " I :　" + _msg;
+        }
+        else if (equipmentMode && !firstEquipment)
+        {
+            equipmentMode = false;
+        }
+        //POST GPT訊息 (並添加訊息備註 提示chatGPT回答規範)
+        if (equipmentMode && firstEquipment)
+        {
+            _msg += "(簡短回覆收到命令即可，勿確切告知執行與否)";
+            firstEquipment = false;
+        }
         //
         StartCoroutine(TurnToLastLine());
         //POST GPT訊息
@@ -268,29 +263,15 @@ public class inputChat : MonoBehaviour
 
     //GPT訊息 發送動作 (設備模式)
     public void toSendData_E(
-        string _msg,    //文字消息
-        bool isEquipmentReturn //是否為裝置狀態回報
+        string _msg    //文字消息
     ){
-        //取得輸入訊息
-        //string _msg = chatInput.text;
         print(_msg);
-        //清空輸入框
-        //chatInput.text = "";
-
-        //是裝置狀態回報 則不印出至螢幕
-        if (!isEquipmentReturn)
-        {
-            //建構對話條
-            var vChatWindow = chatWindow.transform.localPosition;
-            var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
-            itemGround.transform.parent = chatWindow.transform;
-            itemGround.text = " I :　" + _msg;
-        }
+        //
+        //不與對話行交互 (無須印出對話)
         //
         StartCoroutine(TurnToLastLine());
         //POST GPT訊息 (並添加訊息備註 提示chatGPT回答規範)
-        if (firstEquipment)
-            _msg += "(簡短回覆收到命令即可，勿確切告知執行與否)";
+        _msg += "(請根據指令資料庫選擇指令)";
         StartCoroutine(chatGPT.GetPostData_E(_msg, CallBack_E));
     }
 
@@ -299,9 +280,15 @@ public class inputChat : MonoBehaviour
     {
         //取得回傳訊息
         _callback = _callback.Trim();
-        print(_callback);
+        print("M: " + _callback);
         print(emotion);
         last_callback = _callback;
+
+        if(equipmentMode)
+            toSendData_E(message);
+        //淨空傳遞訊息
+        message = string.Empty;
+
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
         var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
@@ -328,56 +315,22 @@ public class inputChat : MonoBehaviour
     }
 
     //GPT訊息 回傳動作 (設備操作使用)
-    private void CallBack_E(string _callback, string emotion)
+    private void CallBack_E(string _callback)
     {
         //取得回傳訊息
         _callback = _callback.Trim();
-        print(_callback);
-        print(emotion);
-        last_callback = _callback;
-        //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.text = " chatGPT :　" + _callback;
-        //AI語音播放
-        Speaker.speak(_callback);
-        //
+        print("E: "+_callback);
         StartCoroutine(TurnToLastLine());
         //觸發指令操作
-        if (firstEquipment)
-        {
-            //
-            //實際裝置控制指令
-            //
-            //根據裝置狀態讓chatGPT回應
-            String equipmentState = "(裝置狀態)裝置已操作成功，裝置目前狀態:啟用";
-            //String equipmentState = "(裝置狀態)裝置無法連接";
-            //String equipmentState = "(裝置狀態)查無此裝置";
-            //String equipmentState = "(裝置狀態)操作失敗，原因:未知";
-            firstEquipment = false;
-            toSendData_E(equipmentState, true);
-        }
-        else
-        {
-            List<double> check_num = new List<double>();
-            check_num.Add(ClassSim.MatchKeywordSim("成功操作", _callback));
-            check_num.Add(ClassSim.MatchKeywordSim("操作成功", _callback));
-            check_num.Add(ClassSim.MatchKeywordSim("完成", _callback));
-            check_num.Add(ClassSim.MatchKeywordSim("成功", _callback));
-            check_num.ForEach(delegate (double it)
-            {
-                print(it);
-                if (it >= 0.25)
-                {
-                    equipmentMode = false;
-                    var vChatWindow = chatWindow.transform.localPosition;
-                    var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
-                    itemGround.transform.parent = chatWindow.transform;
-                    itemGround.text = "(結束設備操作模式)";
-                }
-            });
-        }
+        //
+        //實際裝置控制指令
+        //
+        //根據裝置狀態讓chatGPT(聊天)回應
+        String equipmentState = "(裝置狀態)裝置已操作成功，裝置目前狀態:啟用";
+        //String equipmentState = "(裝置狀態)裝置無法連接";
+        //String equipmentState = "(裝置狀態)查無此裝置";
+        //String equipmentState = "(裝置狀態)操作失敗，原因:未知";
+        toSendData(equipmentState);
 
         //讀取現有對話紀錄
         var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.e_DataList));
@@ -418,48 +371,15 @@ public class inputChat : MonoBehaviour
             {
                 Rec = 0;
                 
-                //一般聊天模式
-                if (!string.IsNullOrEmpty(message) && !equipmentMode)
+                //一般聊天
+                if (!string.IsNullOrEmpty(message))
                 {
-                    
                     //停止現有的AI對話與音輸出
                     Speaker.Mute();
                     //輸入框顯示本次輸入的訊息
                     chatInput.text = message;
                     //chatGPT請求
                     toSendData(message);
-                    //淨空傳遞訊息
-                    message = string.Empty;
-                }
-                //設備操作模式
-                else if (!string.IsNullOrEmpty(message) && equipmentMode)
-                {
-                    if (message == "(結束設備操作模式)")
-                    {
-                        equipmentMode = false;
-                        //印出結束模式
-                        var vChatWindow = chatWindow.transform.localPosition;
-                        var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
-                        itemGround.transform.parent = chatWindow.transform;
-                        itemGround.text = "(結束設備操作模式)";
-                    }
-                    else //問答or操作指令
-                    {
-                        //停止現有的AI對話與音輸出
-                        Speaker.Mute();
-                        //輸入框顯示本次輸入的訊息
-                        chatInput.text = message;
-                        ///////
-                        var vChatWindow = chatWindow.transform.localPosition;
-                        var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
-                        itemGround.transform.parent = chatWindow.transform;
-                        itemGround.text = "(進入設備操作模式)";
-                        //請求chatGPT回應控制
-                        firstEquipment = true;
-                        toSendData_E(message, false);
-                        //淨空傳遞訊息
-                    }
-                    message = string.Empty;
                 }
             }
             //啟用語音辨識

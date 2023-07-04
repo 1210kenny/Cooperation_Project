@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -82,131 +83,147 @@ public class ChatGPT : MonoBehaviour
         System.Action<string,string> _callback //異步回傳函式
     )
     {
-
         print(_postWord);
         //緩存發送的訊息
         m_DataList.Add(new SendData("user", _postWord));
 
-        //建構 WebRequest POST
-        using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
+        long responseCode = -1;
+        while (responseCode != 200)
         {
-            //導入PostData
-            PostData _postData = new PostData
+            //建構 WebRequest POST
+            using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
             {
-                model = "gpt-3.5-turbo",
-                messages = m_DataList
-            };
-
-            //轉存格式
-            string _jsonText = JsonUtility.ToJson(_postData);
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
-            //導入request頭部資訊
-            request.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
-            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", string.Format("Bearer {0}", m_OpenAI_Key));
-
-            //發送
-            yield return request.SendWebRequest();
-
-            //後台回報 回傳碼 (200為成功)
-            print(request.responseCode);
-            if (request.responseCode == 200)
-            {
-                //取出回傳訊息
-                string _msg = request.downloadHandler.text;
-                MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
-                if (_textback != null && _textback.choices.Count > 0)
+                //導入PostData
+                PostData _postData = new PostData
                 {
+                    model = "gpt-3.5-turbo",
+                    messages = m_DataList
+                };
 
-                    string _backMsg;
-                    try
+                //轉存格式
+                string _jsonText = JsonUtility.ToJson(_postData);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
+                //導入request頭部資訊
+                request.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
+                request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", string.Format("Bearer {0}", m_OpenAI_Key));
+
+                //發送
+                yield return request.SendWebRequest();
+
+                //後台回報 回傳碼 (200為成功)
+                print(request.responseCode);
+                responseCode = request.responseCode;
+                if (request.responseCode == 200)
+                {
+                    //取出回傳訊息
+                    string _msg = request.downloadHandler.text;
+                    MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
+                    if (_textback != null && _textback.choices.Count > 0)
                     {
-                        _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
-                    }
-                    catch
-                    {
-                        _backMsg = _textback.choices[0].message.content;
-                    }
-                    //緩存回傳訊息
-                    m_DataList.Add(new SendData("assistant", _backMsg));
 
-                    //返回函式 並做情緒分析
-                    yield return inputAnalyze.GetPostData(_backMsg, _callback);
+                        string _backMsg;
+                        try
+                        {
+                            _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
+                        }
+                        catch
+                        {
+                            _backMsg = _textback.choices[0].message.content;
+                        }
+                        //緩存回傳訊息
+                        m_DataList.Add(new SendData("assistant", _backMsg));
 
-                    //返回函式
-                    //_callback(_backMsg, emotion);
+                        //返回函式 並做情緒分析
+                        yield return inputAnalyze.GetPostData(_backMsg, _callback);
+
+                        //返回函式
+                        //_callback(_backMsg, emotion);
+                    }
+
                 }
-
             }
-            //單次Post訊息結束
-            print("PostEnd");
+            if (responseCode != 200)
+            {
+                yield return new WaitForSeconds(2f);//停止兩秒
+            }
         }
+        //單次Post訊息結束
+        print("PostEnd");
     }
 
     // GPT Post訊息 (設備模式)
     public IEnumerator GetPostData_E(
         string _postWord,   //輸入訊息
-        System.Action<string, string> _callback //異步回傳函式
+        System.Action<string> _callback //異步回傳函式
     )
     {
         print(_postWord);
         //緩存發送的訊息
         e_DataList.Add(new SendData("user", _postWord));
 
-        //建構 WebRequest POST
-        using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
+
+        long responseCode = -1;
+        while (responseCode != 200)
         {
-            //導入PostData
-            PostData _postData = new PostData
+            //建構 WebRequest POST
+            using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
             {
-                model = "gpt-3.5-turbo",
-                messages = e_DataList
-            };
-
-            //轉存格式
-            string _jsonText = JsonUtility.ToJson(_postData);
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
-            //導入request頭部資訊
-            request.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
-            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.SetRequestHeader("Authorization", string.Format("Bearer {0}", m_OpenAI_Key));
-
-            //發送
-            yield return request.SendWebRequest();
-
-            //後台回報 回傳碼 (200為成功)
-            print(request.responseCode);
-            if (request.responseCode == 200)
-            {
-                //取出回傳訊息
-                string _msg = request.downloadHandler.text;
-                MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
-                if (_textback != null && _textback.choices.Count > 0)
+                //導入PostData
+                PostData _postData = new PostData
                 {
-                    string _backMsg;
-                    try
-                    {
-                        _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
-                    }
-                    catch
-                    {
-                        _backMsg = _textback.choices[0].message.content;
-                    }
-                    //緩存回傳訊息
-                    e_DataList.Add(new SendData("assistant", _backMsg));
+                    model = "gpt-3.5-turbo",
+                    messages = e_DataList
+                };
 
-                    //返回函式 並做情緒分析
-                    yield return inputAnalyze.GetPostData(_backMsg, _callback);
+                //轉存格式
+                string _jsonText = JsonUtility.ToJson(_postData);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
+                //導入request頭部資訊
+                request.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
+                request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", string.Format("Bearer {0}", m_OpenAI_Key));
 
-                    //返回函式
-                    //_callback(_backMsg, emotion);
+                //發送
+                yield return request.SendWebRequest();
+
+                //後台回報 回傳碼 (200為成功)
+                print(request.responseCode);
+                responseCode = request.responseCode;
+                if (request.responseCode == 200)
+                {
+                    //取出回傳訊息
+                    string _msg = request.downloadHandler.text;
+                    MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
+                    if (_textback != null && _textback.choices.Count > 0)
+                    {
+                        string _backMsg;
+                        try
+                        {
+                            _backMsg = ChineseProgram.ToTraditionaChinese(_textback.choices[0].message.content);
+                        }
+                        catch
+                        {
+                            _backMsg = _textback.choices[0].message.content;
+                        }
+                        //緩存回傳訊息
+                        e_DataList.Add(new SendData("assistant", _backMsg));
+
+                        //返回函式 並做情緒分析
+                        //yield return inputAnalyze.GetPostData(_backMsg, _callback);
+
+                        _callback(_backMsg);
+                    }
                 }
-
             }
-            //單次Post訊息結束
-            print("PostEnd");
+            if (responseCode != 200)
+            {
+                yield return new WaitForSeconds(2f);//停止兩秒
+            }
         }
+        //單次Post訊息結束
+        print("PostEnd");
     }
 }
