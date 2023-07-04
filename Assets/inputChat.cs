@@ -60,7 +60,7 @@ public class inputChat : MonoBehaviour
     public TextAsset TxtFile;
     //用來存放文本內容
     private string Mytxt;       
-
+    
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
     void Start()
@@ -76,6 +76,7 @@ public class inputChat : MonoBehaviour
         {
             print("No have Key file.");
         }
+
         //AI語音播放器
         Speaker = new text_to_voice(ApiKey[0].key, ApiKey[0].region);
         configuration = SpeechConfig.FromSubscription(ApiKey[1].key, ApiKey[1].region);
@@ -124,7 +125,7 @@ public class inputChat : MonoBehaviour
             File.Create("EquipmentLog.json");
         }
     }
-
+   
     void OnDestroy()
     {
         // 釋放 SpeechRecognizer 物件資源

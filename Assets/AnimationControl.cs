@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class AnimationControl : MonoBehaviour
 {
-    private Animator animator;
+    public Animator animator;
 
-    private void Start()
+    public void Start()
     {
         // 获取Animator组件
         animator = GetComponent<Animator>();
     }
-
+    
     public void Set_Face_Default()
     {
         animator.SetTrigger("Face_Default");
