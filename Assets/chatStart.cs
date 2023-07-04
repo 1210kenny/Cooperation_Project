@@ -25,6 +25,9 @@ public class chatStart : MonoBehaviour
         // 對話條插入至對話窗口
         itemGround.transform.parent = chatWindow.transform;
         itemGround.text = "你好! 我是ChatGPT，有甚麼我幫的上的嗎?";
+        AnimationControl animationControl = GameObject.FindObjectOfType<AnimationControl>();
+        animationControl.Set_Body_Angry();
+        animationControl.Set_Face_Angry();
     }
 
     // Update is called once per frame
