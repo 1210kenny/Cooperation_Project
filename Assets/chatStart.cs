@@ -6,26 +6,25 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class chatStart : MonoBehaviour
 {
-    //¹ï¸Üµ¡¤f
+    //ï¿½ï¿½Üµï¿½ï¿½f
     public GameObject chatWindow;
-    //¹ï¸Ü±ø
+    //ï¿½ï¿½Ü±ï¿½
     public Text chatItem;
-
 
     // Start is called before the first frame update
     void Start()
     {
         print("start");
-        // ³]¸mµe­±´V¼Æ
+        // ï¿½]ï¿½mï¿½eï¿½ï¿½ï¿½Vï¿½ï¿½
         Application.targetFrameRate = 60;
-        // ¨ú±o¹ï¸Üµ¡¤f¦ì¸m
+        // ï¿½ï¿½ï¿½oï¿½ï¿½Üµï¿½ï¿½fï¿½ï¿½m
         var vChatWindow = chatWindow.transform.localPosition;
-        // «Øºc¹ï¸Ü±ø
+        // ï¿½Øºcï¿½ï¿½Ü±ï¿½
         var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
 
-        // ¹ï¸Ü±ø´¡¤J¦Ü¹ï¸Üµ¡¤f
+        // ï¿½ï¿½Ü±ï¿½ï¿½ï¿½ï¿½Jï¿½Ü¹ï¿½Üµï¿½ï¿½f
         itemGround.transform.parent = chatWindow.transform;
-        itemGround.text = "§A¦n! §Ú¬OChatGPT¡A¦³¬Æ»ò§ÚÀ°ªº¤Wªº¶Ü?";
+        itemGround.text = "ï¿½Aï¿½n! ï¿½Ú¬OChatGPTï¿½Aï¿½ï¿½ï¿½Æ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ï¿½?";
     }
 
     // Update is called once per frame

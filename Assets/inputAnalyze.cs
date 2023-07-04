@@ -95,6 +95,7 @@ public class inputAnalyze : MonoBehaviour
                 if (_textback != null)
                 {
                     string _backMsg = _textback.result[0].prediction;
+                    
                     //返回函式
                     _callback(text, _backMsg);
                 }

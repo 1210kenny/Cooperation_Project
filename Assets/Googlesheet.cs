@@ -29,21 +29,21 @@ public class Googlesheet : MonoBehaviour
             }
             else
             {
-                // ¦^¶Ç¸ê®Æ®w©Ò¦³«ü¥O
+                // ï¿½^ï¿½Ç¸ï¿½Æ®wï¿½Ò¦ï¿½ï¿½ï¿½ï¿½O
                 string responseText = www.downloadHandler.text;
                 print(responseText);
                 Debug.Log("Form upload complete!");
 
-                // ÀË¬d¸ê®Æ®w¤¤¬O§_¦³"¶}±Ò¹q¿O"¦¹«ü¥O
-                if (ContainsKeyword(responseText, "¶}±Ò¹q¿O"))
+                // ï¿½Ë¬dï¿½ï¿½Æ®wï¿½ï¿½ï¿½Oï¿½_ï¿½ï¿½"ï¿½}ï¿½Ò¹qï¿½O"ï¿½ï¿½ï¿½ï¿½ï¿½O
+                if (ContainsKeyword(responseText, "ï¿½}ï¿½Ò¹qï¿½O"))
                 {
-                    Debug.Log("Google Sheet contains '¶}±Ò¹q¿O' data!");
+                    Debug.Log("Google Sheet contains 'ï¿½}ï¿½Ò¹qï¿½O' data!");
                     // Perform your desired action here.
 
                 }
                 else
                 {
-                    Debug.Log("Google Sheet does not contain '¶}±Ò¹q¿O' data.");
+                    Debug.Log("Google Sheet does not contain 'ï¿½}ï¿½Ò¹qï¿½O' data.");
                 }
             }
         }
