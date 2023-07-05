@@ -653,6 +653,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chatWindow: {fileID: 265928829}
   chatItem: {fileID: 6373853984033461017, guid: bce2b4ed04e3a864d959b65931af08f9, type: 3}
+  animationControl: {fileID: 858347734}
 --- !u!1 &543654298
 GameObject:
   m_ObjectHideFlags: 0

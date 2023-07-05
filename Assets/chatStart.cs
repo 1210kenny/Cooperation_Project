@@ -10,7 +10,9 @@ public class chatStart : MonoBehaviour
     public GameObject chatWindow;
     //對話條
     public Text chatItem;
-    private AnimationControl animationControl;
+    //public AnimationControl animationControl;
+    [SerializeField]
+    private AnimationControl animationControl;    
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +27,8 @@ public class chatStart : MonoBehaviour
         // 對話條插入至對話窗口
         itemGround.transform.parent = chatWindow.transform;
         itemGround.text = "你好! 我是ChatGPT，有甚麼我幫的上的嗎?";
+        animationControl.Set_Body_Angry();
+        animationControl.Set_Face_Angry();
     }
 
     // Update is called once per frame
