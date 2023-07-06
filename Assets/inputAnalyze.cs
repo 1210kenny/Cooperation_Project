@@ -11,7 +11,8 @@ public class inputAnalyze : MonoBehaviour
 {
     //AI API_url
     private const string m_ApiUrl = "https://www.clueai.cn/modelfun/api/serving_api";
-
+    [SerializeField]
+    private AnimationControl animationControl; 
 
     // Send 資料結構 
     [Serializable]

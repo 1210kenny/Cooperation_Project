@@ -60,7 +60,8 @@ public class inputChat : MonoBehaviour
     public TextAsset TxtFile;
     //用來存放文本內容
     private string Mytxt;       
-    
+    [SerializeField]
+    private AnimationControl animationControl; 
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
     void Start()
