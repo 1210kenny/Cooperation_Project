@@ -11,7 +11,8 @@ public class inputAnalyze : MonoBehaviour
 {
     //AI API_url
     private const string m_ApiUrl = "https://www.clueai.cn/modelfun/api/serving_api";
-
+    [SerializeField]
+    private AnimationControl animationControl; 
 
     // Send 資料結構 
     [Serializable]
@@ -81,6 +82,9 @@ public class inputAnalyze : MonoBehaviour
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Model-name", "clueai-base");
 
+            _callback(text, "");
+            yield return null;
+            /*
             //發送
             yield return request.SendWebRequest();
 
@@ -88,6 +92,8 @@ public class inputAnalyze : MonoBehaviour
             print(request.responseCode);
             if (request.responseCode == 200)
             {
+                _callback(text, "");
+
                 //取出回傳訊息
                 string _msg = request.downloadHandler.text;
                 //_msg.Replace('\'', '\"');
@@ -100,6 +106,7 @@ public class inputAnalyze : MonoBehaviour
                     _callback(text, _backMsg);
                 }
             }
+            */
         }
     }
 }

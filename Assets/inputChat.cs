@@ -13,18 +13,21 @@ using static ChatGPT;
 using System.IO;
 using TreeEditor;
 using System.Linq;
+using System.Drawing;
 
 public class inputChat : MonoBehaviour
 {
     //對話窗口
     public GameObject chatWindow;
     //對話條
-    public Text chatItem;
+    public GameObject GptChatItem;
+    //對話條
+    public GameObject UserChatItem;
 
     //輸入送出按鍵
     //public Button yourButton;
     //用戶 輸入框
-    public InputField chatInput;
+    //public InputField chatInput;
     //API Key 輸入框
     //public InputField OpenAI_Key;
     //chatGPT對話 物件
@@ -60,7 +63,8 @@ public class inputChat : MonoBehaviour
     public TextAsset TxtFile;
     //用來存放文本內容
     private string Mytxt;       
-    
+    [SerializeField]
+    private AnimationControl animationControl; 
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
     void Start()
@@ -240,11 +244,18 @@ public class inputChat : MonoBehaviour
         //清空輸入框
         //chatInput.text = "";
         //建構對話條
-        if (!equipmentMode || (equipmentMode && firstEquipment)) {
+        if (!equipmentMode ) {
             var vChatWindow = chatWindow.transform.localPosition;
-            var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
+            var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
             itemGround.transform.parent = chatWindow.transform;
-            itemGround.text = " I :　" + _msg;
+            itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
+        }
+        else if (equipmentMode && firstEquipment) {
+            var vChatWindow = chatWindow.transform.localPosition;
+            var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
+            itemGround.transform.parent = chatWindow.transform;
+            itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
+            itemGround.transform.GetChild(1).GetComponent<Image>().color = new UnityEngine.Color(1, 0.8056f, 0.4332f, 0.684f);//0.0038
         }
         else if (equipmentMode && !firstEquipment)
         {
@@ -292,9 +303,9 @@ public class inputChat : MonoBehaviour
 
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(chatItem, vChatWindow, Quaternion.identity);
+        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
         itemGround.transform.parent = chatWindow.transform;
-        itemGround.text = " chatGPT :　" + _callback;
+        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -378,7 +389,7 @@ public class inputChat : MonoBehaviour
                     //停止現有的AI對話與音輸出
                     Speaker.Mute();
                     //輸入框顯示本次輸入的訊息
-                    chatInput.text = message;
+                    //chatInput.text = message;
                     //chatGPT請求
                     toSendData(message);
                 }
