@@ -52,7 +52,8 @@ public class inputChat : MonoBehaviour
     //AI語音播放器
     private text_to_voice Speaker;
     //設備關鍵字
-    private const string callEquipment = "操作設備";
+    //private const string callEquipment = "操作設備";
+    List<string> initialKeywords = new List<string> { "操作", "打開", "關閉", "關掉" , "開啟", "切換", "電燈", "音樂", "冷氣", "暫停", "播放"};
     //設備模式
     private bool equipmentMode = false;
     //觸發指令操作 (預設為進入設備模式 第一句話) 待指令集加入後改由偵測到指令集指令後觸發
@@ -61,7 +62,7 @@ public class inputChat : MonoBehaviour
     private Microsoft.CognitiveServices.Speech.SpeechConfig configuration;
     //建立TextAsset
     public TextAsset TxtFile;
-
+    //指令選擇
     private Command_control Command_control = new Command_control();
     //用來存放文本內容
     private string Mytxt;       
@@ -171,8 +172,10 @@ public class inputChat : MonoBehaviour
             if (!equipmentMode)
             {
                 //任務進入設備模式 (之後會由分析用戶任務導向的方式控制 目前仍由偵測關鍵詞進入)
-                var check_EquipmentMode_call = ClassSim.MatchKeywordSim(callEquipment, newMessage);
-                if (check_EquipmentMode_call >= 0.4)
+                //var check_EquipmentMode_call = ClassSim.MatchKeywordSim(callEquipment, newMessage);
+                //if (check_EquipmentMode_call >= 0.4)
+                KeywordComparer comparer = new KeywordComparer(initialKeywords);
+                if(comparer.CompareWithKeywords(newMessage))
                 {
                     equipmentMode = true;
                     firstEquipment = true;
@@ -461,5 +464,29 @@ public class ClassSim
         }
         double cos = num / (Math.Sqrt(numA) * Math.Sqrt(numB));
         return cos;
+    }
+}
+
+//keyword的物件
+public class KeywordComparer
+{
+    private List<string> keywords;
+
+    public KeywordComparer(List<string> initialKeywords)
+    {
+        keywords = initialKeywords;
+    }
+    //用於一一比較
+    public bool CompareWithKeywords(string matchKeyword)
+    {
+        foreach (string keyword in keywords)
+        {
+            double similarity = ClassSim.MatchKeywordSim(keyword, matchKeyword);
+            if(similarity > 0.4){
+                return true;
+            }
+        }
+
+        return false;
     }
 }
