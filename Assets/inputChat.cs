@@ -61,6 +61,8 @@ public class inputChat : MonoBehaviour
     private Microsoft.CognitiveServices.Speech.SpeechConfig configuration;
     //建立TextAsset
     public TextAsset TxtFile;
+
+    private Command_control Command_control = new Command_control();
     //用來存放文本內容
     private string Mytxt;       
     [SerializeField]
@@ -332,13 +334,21 @@ public class inputChat : MonoBehaviour
         //取得回傳訊息
         _callback = _callback.Trim();
         print("E: "+_callback);
-        StartCoroutine(TurnToLastLine());
+        String equipmentState;
+        if(Command_control.choose_command(_callback)){
+            StartCoroutine(TurnToLastLine());
+            equipmentState = "(裝置狀態)裝置已操作成功，裝置目前狀態:啟用";
+        }
+        else{
+            StartCoroutine(TurnToLastLine());
+            equipmentState = "(裝置狀態)查無此裝置";
+        }
         //觸發指令操作
         //
         //實際裝置控制指令
         //
         //根據裝置狀態讓chatGPT(聊天)回應
-        String equipmentState = "(裝置狀態)裝置已操作成功，裝置目前狀態:啟用";
+        //String equipmentState = "(裝置狀態)裝置已操作成功，裝置目前狀態:啟用";
         //String equipmentState = "(裝置狀態)裝置無法連接";
         //String equipmentState = "(裝置狀態)查無此裝置";
         //String equipmentState = "(裝置狀態)操作失敗，原因:未知";
