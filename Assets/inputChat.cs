@@ -101,7 +101,7 @@ public class inputChat : MonoBehaviour
         //chatGPT(聊天) 預設角色
         chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
         //chatGPT(設備) 預設角色
-        chatGPT.e_DataList.Add(new SendData("system", "我是指令資料庫，請根據輸入文句選擇下列相對應的編號指令：\n1.開關電燈1號\n2.開關電燈二號\n3.播放、暫停音樂\n4.提供目前播放中的音樂叫什麼名字\n5.提供上一首播放的音樂叫什麼名字"));
+        chatGPT.e_DataList.Add(new SendData("system", Mytxt));
 
         //讀取現有對話紀錄
         try
@@ -283,7 +283,7 @@ public class inputChat : MonoBehaviour
         //
         StartCoroutine(TurnToLastLine());
         //POST GPT訊息 (並添加訊息備註 提示chatGPT回答規範)
-        _msg += "(請根據指令資料庫選擇指令)";
+        _msg += "(簡短回覆編號即可)";
         StartCoroutine(chatGPT.GetPostData_E(_msg, CallBack_E));
     }
 
