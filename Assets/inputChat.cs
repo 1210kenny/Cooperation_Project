@@ -254,6 +254,7 @@ public class inputChat : MonoBehaviour
             var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
             itemGround.transform.parent = chatWindow.transform;
             itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
+            checkChatsBoxToDelete();
         }
         else if (equipmentMode && firstEquipment) {
             var vChatWindow = chatWindow.transform.localPosition;
@@ -261,6 +262,7 @@ public class inputChat : MonoBehaviour
             itemGround.transform.parent = chatWindow.transform;
             itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
             itemGround.transform.GetChild(1).GetComponent<Image>().color = new UnityEngine.Color(1, 0.8056f, 0.4332f, 0.684f);//0.0038
+            checkChatsBoxToDelete();
         }
         else if (equipmentMode && !firstEquipment)
         {
@@ -311,6 +313,7 @@ public class inputChat : MonoBehaviour
         var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
+        checkChatsBoxToDelete();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -368,6 +371,13 @@ public class inputChat : MonoBehaviour
         {
             File.Create("EquipmentLog.json");
             File.WriteAllText("EquipmentLog.json", outputString);
+        }
+    }
+
+    private void checkChatsBoxToDelete()
+    {
+        if(chatWindow.transform.childCount > 5) {
+            Destroy(chatWindow.transform.GetChild(0).gameObject);
         }
     }
 
