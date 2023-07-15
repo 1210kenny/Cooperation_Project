@@ -34,6 +34,7 @@ public class ChatGPT : MonoBehaviour
     {
         public string model; // 使用模型
         public List<SendData> messages; // 對話紀錄
+        public float temperature; //溫度
     }
 
     // Send 資料結構 
@@ -97,7 +98,8 @@ public class ChatGPT : MonoBehaviour
                 PostData _postData = new PostData
                 {
                     model = "gpt-3.5-turbo",
-                    messages = m_DataList
+                    messages = m_DataList,
+                    temperature = 1.4f
                 };
 
                 //轉存格式
@@ -136,7 +138,7 @@ public class ChatGPT : MonoBehaviour
                         m_DataList.Add(new SendData("assistant", _backMsg));
 
                         //返回函式 並做情緒分析
-                        yield return inputAnalyze.GetPostData(_backMsg, _callback);
+                        yield return inputAnalyze.chatGPT_mood(_backMsg, _callback);
 
                         //返回函式
                         //_callback(_backMsg, emotion);

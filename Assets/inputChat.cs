@@ -102,7 +102,7 @@ public class inputChat : MonoBehaviour
         //print(Mytxt);
 
         //chatGPT(聊天) 預設角色
-        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
+        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題，並在每次對話的結尾輸出該句子的情緒在括弧中；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
         //chatGPT(設備) 預設角色
         chatGPT.e_DataList.Add(new SendData("system", Mytxt));
 
@@ -300,7 +300,7 @@ public class inputChat : MonoBehaviour
         //取得回傳訊息
         _callback = _callback.Trim();
         print("M: " + _callback);
-        print(emotion);
+        print("emotion: " + emotion);
         last_callback = _callback;
 
         if(equipmentMode)

@@ -6,13 +6,14 @@ using static ChatGPT;
 using UnityEngine.Networking;
 using System;
 using Unity.VisualScripting;
+using System.Text.RegularExpressions;
 
 public class inputAnalyze : MonoBehaviour
 {
     //AI API_url
     private const string m_ApiUrl = "https://www.clueai.cn/modelfun/api/serving_api";
     [SerializeField]
-    private AnimationControl animationControl; 
+    private AnimationControl animationControl;
 
     // Send 資料結構 
     [Serializable]
@@ -108,5 +109,16 @@ public class inputAnalyze : MonoBehaviour
             }
             */
         }
+    }
+
+    public static IEnumerator chatGPT_mood(
+        string text,
+        System.Action<string, string> _callback //異步回傳函式
+        )
+    {
+        string mood = Regex.Replace(Regex.Match(text, @"（\S+）$").Value, @"(（|）)", string.Empty);
+        string mainText = Regex.Replace(text, @"（\S+）$", string.Empty);
+        _callback(mainText, mood);
+        yield return null;
     }
 }
