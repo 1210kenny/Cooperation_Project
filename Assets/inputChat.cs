@@ -102,7 +102,9 @@ public class inputChat : MonoBehaviour
         //print(Mytxt);
 
         //chatGPT(聊天) 預設角色
-        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題，並在每次對話的結尾輸出該句子的情緒在括弧中；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
+        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
+        chatGPT.m_DataList.Add(new SendData("system", "我會在最後輸出該次對話的情緒及動作在括弧中，輸出規則為（情緒、動作）；可有以下情緒：1.中立、2.開心、3.生氣、4.哀傷、5.驚訝；可有以下動作：1.無動作、2.開心、3.生氣、4.哀傷、5.驚訝；範例：「（2、2）」"));
+
         //chatGPT(設備) 預設角色
         chatGPT.e_DataList.Add(new SendData("system", Mytxt));
 
@@ -167,7 +169,7 @@ public class inputChat : MonoBehaviour
         if (result.Reason == ResultReason.RecognizedSpeech)
         {
             newMessage = result.Text;
-            //newMessage = "操作設備，請幫我開啟電燈。";
+            //newMessage = "幫我打開電燈。";
             //呼叫字串比較，不是由AI回答，並且提到"操作設備"則進入設備模式
             if (!equipmentMode)
             {
