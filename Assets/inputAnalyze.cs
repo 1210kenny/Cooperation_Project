@@ -116,8 +116,8 @@ public class inputAnalyze : MonoBehaviour
         System.Action<string, string> _callback //異步回傳函式
         )
     {
-        string mood = Regex.Replace(Regex.Match(text, @"（\S+）$").Value, @"(（|）)", string.Empty);
-        string mainText = Regex.Replace(text, @"（\S+）$", string.Empty);
+        string mood = Regex.Replace(Regex.Match(text, @"(（\S+）)|(\(\S+\))$").Value, @"(\(|\)|（|）)", string.Empty);
+        string mainText = Regex.Replace(text, @"(（\S+）)|(\(\S+\))$", string.Empty);
         _callback(mainText, mood);
         yield return null;
     }
