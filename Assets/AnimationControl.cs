@@ -11,7 +11,72 @@ public class AnimationControl : MonoBehaviour
         // 获取Animator组件
         animator = GetComponent<Animator>();
     }
-    
+    public void set_face(string input){
+        switch (input)
+        {
+            case "1":
+                Set_Face_Default();
+                Debug.Log("set_face:1");
+                break;
+            case "2":
+                Set_Face_Fun();
+                Debug.Log("set_face:2");
+                break;
+            case "3":
+                Set_Face_Angry();
+                Debug.Log("set_face:3");
+                break;
+            case "4":
+                Set_Face_Sorrow();
+                Debug.Log("set_face:4");
+                break;
+            case "5":
+                Set_Face_Surprised();
+                Debug.Log("set_face:5");
+                break;
+            default:
+                Set_Face_Default();
+                Debug.Log("set_face:d");
+                break;
+        }
+    }
+    public void set_action(string input){
+        switch (input)
+        {
+            case "1":
+                Set_Body_Standing();
+                Debug.Log("set_action:1");
+                break;
+            case "2":
+                Set_Body_Bored();
+                Debug.Log("set_action:2");
+                break;
+            case "3":
+                Set_Body_Angry();
+                Debug.Log("set_action:3");
+                break;
+            case "4":
+                Set_Body_FormalBow();
+                Debug.Log("set_action:4");
+                break;
+            case "5":
+                Set_Body_InformalBow();
+                Debug.Log("set_action:5");
+                break;
+            case "6":
+                Set_Body_Sad();
+                Debug.Log("set_action:6");
+                break;
+            case "7":
+                Set_Body_Waving();
+                Debug.Log("set_action:7");
+                break;
+            default:
+                Set_Face_Default();
+                Debug.Log("set_action:d");
+                break;
+        }
+    }
     public void Set_Face_Default()
     {
         animator.SetTrigger("Face_Default");

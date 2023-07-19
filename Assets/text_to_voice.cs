@@ -12,7 +12,7 @@ public class text_to_voice
 
     public static Microsoft.CognitiveServices.Speech.SpeechConfig config_;
     public static SpeechSynthesizer synthesizer;
-
+    public string speak_style = "assistant";
 
     public text_to_voice(string key, string region)
     {
@@ -51,23 +51,18 @@ public class text_to_voice
 
     public void speak(string text)
     {
-        readString(text);
+        readString(text, speak_style);
     }
 
-    async public static void readString(string text)
+    async public static void readString(string text, string style)
     {
-        //
-        // For more samples please visit https://github.com/Azure-Samples/cognitive-services-speech-sdk 
-        // 
+        var ssml = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='zh-CN'>" +
+            $"<voice name='zh-CN-XiaoxiaoNeural' style='{style}'>" +
+            $"{text}" +
+            "</voice></speak>";
 
-        // Creates an instance of a speech config with specified subscription key and service region.
-
-        // Note: the voice setting will not overwrite the voice element in input SSML.
-        //while(true){
-        // use the default speaker as audio output.
-        using (var result = await synthesizer.SpeakTextAsync(text))
+        using (var result = await synthesizer.SpeakSsmlAsync(ssml))
         {
-
             if (result.Reason == ResultReason.SynthesizingAudioCompleted)
             {
                 Console.WriteLine($"Speech synthesized for text [{text}]");
@@ -86,6 +81,61 @@ public class text_to_voice
             }
         }
     }
+    public void ChangeEmotion(string emotion)
+    {
+        switch (emotion)
+        {
+            case "1":
+                speak_style = "affectionate";
+                break;
+            case "2":
+                speak_style = "angry";
+                break;
+            case "3":
+                speak_style = "assistant";
+                break;
+            case "4":
+                speak_style = "calm";
+                break;
+            case "5":
+                speak_style = "chat";
+                break;
+            case "6":
+                speak_style = "cheerful";
+                break;
+            case "7":
+                speak_style = "customerService";
+                break;
+            case "8":
+                speak_style = "disgruntled";
+                break;
+            case "9":
+                speak_style = "fearful";
+                break;
+            case "10":
+                speak_style = "friendly";
+                break;
+            case "11":
+                speak_style = "gentle";
+                break;
+            case "12":
+                speak_style = "lyrical";
+                break;
+            case "13":
+                speak_style = "newscast";
+                break;
+            case "14":
+                speak_style = "poetryReading";
+                break;
+            case "15":
+                speak_style = "sad";
+                break;
+            case "16":
+                speak_style = "serious";
+                break;
+            default:
+                speak_style = "assistant";
+                break;
+        }
+    }
 }
-
-
