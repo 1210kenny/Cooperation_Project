@@ -99,7 +99,7 @@ public class ChatGPT : MonoBehaviour
                 {
                     model = "gpt-3.5-turbo",
                     messages = m_DataList,
-                    temperature = 1.4f
+                    temperature = 1.2f
                 };
 
                 //轉存格式
