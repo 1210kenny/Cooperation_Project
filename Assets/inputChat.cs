@@ -15,6 +15,8 @@ using TreeEditor;
 using System.Linq;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using static UnityEngine.UI.Image;
+
 public class inputChat : MonoBehaviour
 {
     //對話窗口
@@ -176,6 +178,7 @@ public class inputChat : MonoBehaviour
             newMessage = result.Text;
             //newMessage = "打開電燈。";
             //呼叫字串比較，不是由AI回答，並且提到"操作設備"則進入設備模式
+            /*
             if (!equipmentMode)
             {
                 //任務進入設備模式 (之後會由分析用戶任務導向的方式控制 目前仍由偵測關鍵詞進入)
@@ -188,6 +191,7 @@ public class inputChat : MonoBehaviour
                     firstEquipment = true;
                 }
             }
+            */
         }
         //強制結束播放（不用等回傳到）ChatGPT的時間
         var check_num1 = ClassSim.MatchKeywordSim(callAI, newMessage);
@@ -246,6 +250,14 @@ public class inputChat : MonoBehaviour
         //    toSendData();
     }
 
+    //GPT訊息 發送動作 (任務辨識)
+    public void toSendData_T(string _msg)
+    {
+        //StartCoroutine(TurnToLastLine());
+        //POST GPT訊息
+        StartCoroutine(chatGPT.GetPostData_T(_msg, CallBack_T));
+    }
+
     //GPT訊息 發送動作
     public void toSendData(string _msg)
     {
@@ -299,6 +311,33 @@ public class inputChat : MonoBehaviour
         //POST GPT訊息 (並添加訊息備註 提示chatGPT回答規範)
         _msg += "(簡短回覆編號即可)";
         StartCoroutine(chatGPT.GetPostData_E(_msg, CallBack_E));
+    }
+
+    //GPT訊息 回傳動作 (任務辨識)
+    private void CallBack_T(string _callback,string originalText)
+    {
+        int task = 0;
+        try{
+            task = int.Parse(Regex.Replace(_callback, @"\D", string.Empty));
+        }
+        catch{
+            task = 0;
+        }
+        switch (task)
+        {
+            case 2: //設備操作
+                equipmentMode = true;
+                firstEquipment = true;
+                toSendData(originalText);
+                break;
+            case 3: //時效性問答 or 網路查詢
+                print("需使用網路查詢");
+                break;
+            case 1: //一般聊天 or 非時效性問答
+            default:
+                toSendData(originalText);
+                break;
+        }
     }
 
     //GPT訊息 回傳動作
@@ -435,8 +474,8 @@ public class inputChat : MonoBehaviour
                     Speaker.Mute();
                     //輸入框顯示本次輸入的訊息
                     //chatInput.text = message;
-                    //chatGPT請求
-                    toSendData(message);
+                    //chatGPT請求 (做任務分類)
+                    toSendData_T(message);
                 }
             }
             //啟用語音辨識

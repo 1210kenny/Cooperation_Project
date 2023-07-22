@@ -78,6 +78,84 @@ public class ChatGPT : MonoBehaviour
         public string content;
     }
 
+    // GPT Post訊息 (任務辨識)
+    public IEnumerator GetPostData_T(
+        string _postWord,   //輸入訊息
+        System.Action<string,string> _callback //異步回傳函式
+    )
+    {
+        print("to T: "+ _postWord);
+
+        List<SendData> t_DataList = new List<SendData>();
+        t_DataList.Add(new SendData("system", 
+            "我是一個任務分析器，請根據用戶輸入之文句，分析用戶之目的，並選擇下列編號：" +
+            "1.聊天或非即時性問題詢問、" +
+            "2.操作或控制實體設備、" +
+            "3.詢問有時效性的知識或問題；" +
+            "下列為範例：" +
+            "「請問2022年有甚麼大事件發生？」，回答：「3」；" +
+            "「請幫我打開電燈，並且調整成暖光模式。」，回答：「2」；" +
+            "「蘋果派是甚麼？」，回答：「1」；" +
+            "如果用戶在句中有明確表達需要使用網路查詢資料則回答：「3」，如 ：「請幫我上網查詢蘋果派的做法。」" +
+            "不要回答除編號以外的東西。"));
+
+        //緩存發送的訊息
+        t_DataList.Add(new SendData("user", _postWord));
+
+        long responseCode = -1;
+        while (responseCode != 200)
+        {
+            //建構 WebRequest POST
+            using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
+            {
+                //導入PostData
+                PostData _postData = new PostData
+                {
+                    model = "gpt-3.5-turbo",
+                    messages = t_DataList,
+                    temperature = 1f
+                };
+
+                //轉存格式
+                string _jsonText = JsonUtility.ToJson(_postData);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
+                //導入request頭部資訊
+                request.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
+                request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", string.Format("Bearer {0}", m_OpenAI_Key));
+
+                //發送
+                yield return request.SendWebRequest();
+
+                //後台回報 回傳碼 (200為成功)
+                print(request.responseCode);
+                responseCode = request.responseCode;
+                if (request.responseCode == 200)
+                {
+                    //取出回傳訊息
+                    string _msg = request.downloadHandler.text;
+                    MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
+                    if (_textback != null && _textback.choices.Count > 0)
+                    {
+
+                        string _backMsg = _textback.choices[0].message.content;
+                        print("T: " + _backMsg);
+                        _callback(_backMsg, _postWord);
+                        yield return null;
+                    }
+
+                }
+            }
+            if (responseCode != 200)
+            {
+                yield return new WaitForSeconds(2f);//停止兩秒
+            }
+        }
+        //單次Post訊息結束
+        print("PostEnd");
+    }
+
     // GPT Post訊息 (聊天模式)
     public IEnumerator GetPostData(
         string _postWord,   //輸入訊息
