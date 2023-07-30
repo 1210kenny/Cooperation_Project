@@ -73,6 +73,9 @@ public class inputChat : MonoBehaviour
     private AnimationControl animationControl; 
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
+    //搜索引擎API key
+    string serpapi_Key = "";
+
     void Start()
     {
         //讀取鑰匙
@@ -91,6 +94,7 @@ public class inputChat : MonoBehaviour
         Speaker = new text_to_voice(ApiKey[0].key, ApiKey[0].region);
         configuration = SpeechConfig.FromSubscription(ApiKey[1].key, ApiKey[1].region);
         chatGPT.setApiKey(ApiKey[2].key);
+        serpapi_Key = ApiKey[3].key;
 
         configuration.SpeechRecognitionLanguage = "zh-TW";
         //Button btn = yourButton.GetComponent<Button>();
@@ -313,6 +317,63 @@ public class inputChat : MonoBehaviour
         StartCoroutine(chatGPT.GetPostData_E(_msg, CallBack_E));
     }
 
+    //GPT訊息 發送動作 (上網任務)
+    public void toSendData_I(
+        string _msg    //文字消息
+    )
+    {
+        var vChatWindow = chatWindow.transform.localPosition;
+        var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
+        itemGround.transform.parent = chatWindow.transform;
+        itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
+        checkChatsBoxToDelete();
+
+
+        //添加對話紀錄 (紀錄Google搜尋結果)
+        chatGPT.m_DataList.Add(new SendData("user", _msg));
+
+        StartCoroutine(PythonScript.Search(
+            CallBack_I,
+            chatGPT.getApiKey(),
+            serpapi_Key,
+            _msg));
+    }
+
+    //GPT訊息 回傳動作
+    void CallBack_I(string _callback)
+    {
+        print("search:" +_callback);
+
+        //添加對話紀錄 (紀錄Google搜尋結果)
+        chatGPT.m_DataList.Add(new SendData("assistant", _callback));
+        //淨空傳遞訊息
+        message = string.Empty;
+        //建構對話條
+        var vChatWindow = chatWindow.transform.localPosition;
+        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
+        itemGround.transform.parent = chatWindow.transform;
+        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
+        checkChatsBoxToDelete();
+        //AI語音播放
+        Speaker.speak(_callback);
+        //
+        StartCoroutine(TurnToLastLine());
+
+
+        //存取現有對話紀錄
+        var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
+        try
+        {
+            File.WriteAllText("MyFile.json", outputString);
+        }
+        //無對話紀錄 則創建空紀錄檔案
+        catch (Exception e)
+        {
+            File.Create("MyFile.json");
+            File.WriteAllText("MyFile.json", outputString);
+        }
+    }
+
     //GPT訊息 回傳動作 (任務辨識)
     private void CallBack_T(string _callback,string originalText)
     {
@@ -331,7 +392,8 @@ public class inputChat : MonoBehaviour
                 toSendData(originalText);
                 break;
             case 3: //時效性問答 or 網路查詢
-                print("需使用網路查詢");
+                //print("需使用網路查詢");
+                toSendData_I(originalText);
                 break;
             case 1: //一般聊天 or 非時效性問答
             default:
