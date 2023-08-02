@@ -9,21 +9,42 @@ using UnityEngine;
 public class PythonScript
 {
 
-    private static string translaterPath = @"";
+    private static string translaterPath = @"C:python.exe";
     //python腳本資料夾
     private static string basePath = @"Assets\Python\";
 
     // Unity 調用 Python
     // 
     public static IEnumerator Search(
-        System.Action<string> _callback, //異步回傳函式
+        System.Action<string> _callback,
+         //異步回傳函式
+        string programName,
                                          //chatGPT.getApiKey()
                                          //serpapi_Key
         params string[] argvs            //給 python 的其他參數
     )
+
+
     {
 
-        string pyScriptPath = basePath + "Search.py";
+        string pyScriptPath ;
+        if (programName == "Search")
+        {
+            pyScriptPath = basePath + "Search.py";
+        }
+        else if(programName=="gmail")
+        {
+            pyScriptPath = basePath + "gmail.py";
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("沒有檔案.");
+            yield break;
+        }
+
+        
+       
+      
 
         // 判斷是否有參數
         if (argvs != null)
