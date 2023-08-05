@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -15,6 +16,13 @@ public class ChatGPT : MonoBehaviour
     private string m_ApiUrl = "https://api.openai.com/v1/chat/completions";
     // API key
     private string m_OpenAI_Key = "";
+
+    //任務隊列
+    public Queue<SendQueue> taskQueue = new Queue<SendQueue>();
+    //線程鎖 (ChatGPT)
+    public object threadLocker = new object();
+    //狀態 0:無執行 1：等待回傳
+    public int taskState = 0;
 
     //設置API KEY
     public string getApiKey()
@@ -35,6 +43,28 @@ public class ChatGPT : MonoBehaviour
         public string model; // 使用模型
         public List<SendData> messages; // 對話紀錄
         public float temperature; //溫度
+    }
+
+    // ChatGPT任務隊列 資料結構
+    [Serializable]
+    public class SendQueue
+    {
+        string text;
+        int taskClass;
+
+        public SendQueue(string text,int taskClass)
+        {
+            this.text = text;
+            this.taskClass = taskClass;
+        }
+        public string getText()
+        {
+            return this.text;
+        }
+        public int getTaskClass()
+        {
+            return this.taskClass;
+        }
     }
 
     // Send 資料結構 
@@ -144,7 +174,6 @@ public class ChatGPT : MonoBehaviour
                     {
 
                         string _backMsg = _textback.choices[0].message.content;
-                        print("T: " + _backMsg);
                         _callback(_backMsg, _postWord);
                         yield return null;
                     }

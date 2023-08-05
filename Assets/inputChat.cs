@@ -182,6 +182,7 @@ public class inputChat : MonoBehaviour
         if (result.Reason == ResultReason.RecognizedSpeech)
         {
             newMessage = result.Text;
+            Rec = 2;
             //newMessage = "打開電燈。";
             //呼叫字串比較，不是由AI回答，並且提到"操作設備"則進入設備模式
             /*
@@ -198,6 +199,11 @@ public class inputChat : MonoBehaviour
                 }
             }
             */
+        }
+        else
+        {
+            Rec = 0;
+            return;
         }
         //強制結束播放（不用等回傳到）ChatGPT的時間
         var check_num1 = ClassSim.MatchKeywordSim(callAI, newMessage);
@@ -275,19 +281,23 @@ public class inputChat : MonoBehaviour
         //chatInput.text = "";
         //建構對話條
         if (!equipmentMode ) {
+            /*
             var vChatWindow = chatWindow.transform.localPosition;
             var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
             itemGround.transform.parent = chatWindow.transform;
             itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
             checkChatsBoxToDelete();
+            */
         }
         else if (equipmentMode && firstEquipment) {
+            /*
             var vChatWindow = chatWindow.transform.localPosition;
             var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
             itemGround.transform.parent = chatWindow.transform;
             itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
             itemGround.transform.GetChild(1).GetComponent<Image>().color = new UnityEngine.Color(1, 0.8056f, 0.4332f, 0.684f);//0.0038
             checkChatsBoxToDelete();
+            */
         }
         else if (equipmentMode && !firstEquipment)
         {
@@ -324,11 +334,13 @@ public class inputChat : MonoBehaviour
         string _msg    //文字消息
     )
     {
+        /*
         var vChatWindow = chatWindow.transform.localPosition;
         var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
         checkChatsBoxToDelete();
+        */
 
 
         //添加對話紀錄 (紀錄Google搜尋結果)
@@ -342,13 +354,39 @@ public class inputChat : MonoBehaviour
             _msg));
     }
 
-    //GPT訊息 回傳動作
+    //GPT訊息 發送動作 (Gmail)
+    public void toSendData_G(
+       string _msg    //文字消息
+   )
+    {
+        /*
+        var vChatWindow = chatWindow.transform.localPosition;
+        var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
+        itemGround.transform.parent = chatWindow.transform;
+        itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
+        checkChatsBoxToDelete();
+        */
+
+        //添加對話紀錄 (紀錄Google搜尋結果)
+        chatGPT.m_DataList.Add(new SendData("user", _msg));
+
+        StartCoroutine(PythonScript.Search(
+            CallBack_G,
+            "gmail",
+            chatGPT.getApiKey(),
+            zapier_Key,
+            _msg));
+    }
+
+    //GPT訊息 回傳動作 (網路查詢)
     void CallBack_I(string _callback)
     {
         print("search:" +_callback);
 
         //添加對話紀錄 (紀錄Google搜尋結果)
         chatGPT.m_DataList.Add(new SendData("assistant", _callback));
+        //chatGPT狀態 (空閒)
+        chatGPT.taskState = 0;
         //淨空傳遞訊息
         message = string.Empty;
         //建構對話條
@@ -357,6 +395,8 @@ public class inputChat : MonoBehaviour
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
+        //停止 AI語音播放
+        Speaker.Mute();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -377,30 +417,6 @@ public class inputChat : MonoBehaviour
         }
     }
 
-
-
-     public void toSendData_G(
-        string _msg    //文字消息
-    )
-    {
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = _msg;
-        checkChatsBoxToDelete();
-
-
-        //添加對話紀錄 (紀錄Google搜尋結果)
-        chatGPT.m_DataList.Add(new SendData("user", _msg));
-
-        StartCoroutine(PythonScript.Search(
-            CallBack_G,
-            "gmail",
-            chatGPT.getApiKey(),
-            zapier_Key,
-            _msg));
-    }
-
     //GPT訊息 回傳動作
     void CallBack_G(string _callback)
     {
@@ -408,6 +424,8 @@ public class inputChat : MonoBehaviour
 
         //添加對話紀錄
         chatGPT.m_DataList.Add(new SendData("assistant", _callback));
+        //chatGPT狀態 (空閒)
+        chatGPT.taskState = 0;
         //淨空傳遞訊息
         message = string.Empty;
         //建構對話條
@@ -416,6 +434,8 @@ public class inputChat : MonoBehaviour
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
+        //停止 AI語音播放
+        Speaker.Mute();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -447,29 +467,27 @@ public class inputChat : MonoBehaviour
         catch{
             task = 0;
         }
-        switch (task)
-        {
-            case 2: //設備操作
-                equipmentMode = true;
-                firstEquipment = true;
-                toSendData(originalText);
-                break;
-            case 4:
-                 toSendData_G(originalText);
-                 Debug.Log("傳送郵件");
-                 break;
-            case 3: //時效性問答 or 網路查詢
-                //print("需使用網路查詢");
-                toSendData_I(originalText);
-                break;
-            
-            case 1: //一般聊天 or 非時效性問答
-          
-            default:
-                toSendData(originalText);
-                break;
+
+        if (task == 2 || task == 4) {
+            var vChatWindow = chatWindow.transform.localPosition;
+            var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
+            itemGround.transform.parent = chatWindow.transform;
+            itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = originalText;
+            itemGround.transform.GetChild(1).GetComponent<Image>().color = new UnityEngine.Color(1, 0.8056f, 0.4332f, 0.684f);//0.0038
+            checkChatsBoxToDelete();
         }
-        Debug.Log(task);
+        else
+        {
+            var vChatWindow = chatWindow.transform.localPosition;
+            var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
+            itemGround.transform.parent = chatWindow.transform;
+            itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = originalText;
+            checkChatsBoxToDelete();
+        }
+
+        Debug.Log("task: " + task + " " + originalText);
+        chatGPT.taskQueue.Enqueue(new SendQueue(originalText, task));
+
     }
 
     //GPT訊息 回傳動作
@@ -498,6 +516,9 @@ public class inputChat : MonoBehaviour
 
         if(equipmentMode)
             toSendData_E(message);
+        else
+            //chatGPT狀態 (空閒)
+            chatGPT.taskState = 0;
         //淨空傳遞訊息
         message = string.Empty;
 
@@ -507,6 +528,8 @@ public class inputChat : MonoBehaviour
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
+        //停止 AI語音播放
+        Speaker.Mute();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -598,7 +621,6 @@ public class inputChat : MonoBehaviour
             if (Rec == 2)
             {
                 Rec = 0;
-                
                 //一般聊天
                 if (!string.IsNullOrEmpty(message))
                 {
@@ -611,9 +633,43 @@ public class inputChat : MonoBehaviour
                 }
             }
             //啟用語音辨識
-            else if (Rec == 0)
+            if (Rec == 0)
             {
                 InitializeSpeechRecognizer();
+            }
+        }
+
+        lock (chatGPT.threadLocker)
+        {
+            if (chatGPT.taskState == 0 && chatGPT.taskQueue.Count > 0)
+            {
+                chatGPT.taskState = 1;
+
+                SendQueue task = chatGPT.taskQueue.Dequeue();
+                string originalText = task.getText();
+                int taskClass = task.getTaskClass();
+
+                switch (taskClass)
+                {
+                    case 2: //設備操作
+                        equipmentMode = true;
+                        firstEquipment = true;
+                        toSendData(originalText);
+                        break;
+                    case 4:
+                        toSendData_G(originalText);
+                        Debug.Log("傳送郵件");
+                        break;
+                    case 3: //時效性問答 or 網路查詢
+                            //print("需使用網路查詢");
+                        toSendData_I(originalText);
+                        break;
+
+                    case 1: //一般聊天 or 非時效性問答
+                    default:
+                        toSendData(originalText);
+                        break;
+                }
             }
         }
     }
