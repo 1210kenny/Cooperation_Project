@@ -387,16 +387,12 @@ public class inputChat : MonoBehaviour
         chatGPT.m_DataList.Add(new SendData("assistant", _callback));
         //chatGPT狀態 (空閒)
         chatGPT.taskState = 0;
-        //淨空傳遞訊息
-        message = string.Empty;
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
         var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
-        //停止 AI語音播放
-        Speaker.Mute();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -426,16 +422,12 @@ public class inputChat : MonoBehaviour
         chatGPT.m_DataList.Add(new SendData("assistant", _callback));
         //chatGPT狀態 (空閒)
         chatGPT.taskState = 0;
-        //淨空傳遞訊息
-        message = string.Empty;
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
         var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
-        //停止 AI語音播放
-        Speaker.Mute();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -519,8 +511,6 @@ public class inputChat : MonoBehaviour
         else
             //chatGPT狀態 (空閒)
             chatGPT.taskState = 0;
-        //淨空傳遞訊息
-        message = string.Empty;
 
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
@@ -528,8 +518,6 @@ public class inputChat : MonoBehaviour
         itemGround.transform.parent = chatWindow.transform;
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
-        //停止 AI語音播放
-        Speaker.Mute();
         //AI語音播放
         Speaker.speak(_callback);
         //
@@ -624,12 +612,15 @@ public class inputChat : MonoBehaviour
                 //一般聊天
                 if (!string.IsNullOrEmpty(message))
                 {
+                    string toMessage = message;
+                    //淨空傳遞訊息
+                    message = string.Empty;
                     //停止現有的AI對話與音輸出
                     Speaker.Mute();
                     //輸入框顯示本次輸入的訊息
                     //chatInput.text = message;
                     //chatGPT請求 (做任務分類)
-                    toSendData_T(message);
+                    toSendData_T(toMessage);
                 }
             }
             //啟用語音辨識
