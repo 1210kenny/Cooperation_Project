@@ -16,6 +16,7 @@ using System.Linq;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using static UnityEngine.UI.Image;
+using System.Threading;
 
 public class inputChat : MonoBehaviour
 {
@@ -76,6 +77,9 @@ public class inputChat : MonoBehaviour
     //搜索引擎API key
     string serpapi_Key = "";
     string zapier_Key="";
+
+    public bool isSpeaking = false;
+    public string speak_style = "assistant";
 
     void Start()
     {
@@ -394,7 +398,7 @@ public class inputChat : MonoBehaviour
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
         //AI語音播放
-        Speaker.speak(_callback);
+        speak(_callback);
         //
         StartCoroutine(TurnToLastLine());
 
@@ -429,7 +433,7 @@ public class inputChat : MonoBehaviour
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
         //AI語音播放
-        Speaker.speak(_callback);
+        speak(_callback);
         //
         StartCoroutine(TurnToLastLine());
 
@@ -519,7 +523,7 @@ public class inputChat : MonoBehaviour
         itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
         checkChatsBoxToDelete();
         //AI語音播放
-        Speaker.speak(_callback);
+        speak(_callback);
         //
         StartCoroutine(TurnToLastLine());
 
@@ -663,6 +667,38 @@ public class inputChat : MonoBehaviour
                 }
             }
         }
+    }
+    public void speak(string text)
+    {
+        // 將語音合成標誌設置為 true，表示正在進行語音合成
+        isSpeaking = true;
+
+
+        // 開始執行 Coroutine，用於動畫的重複執行
+        StartCoroutine(AnimateFace());
+
+        // 調用 readString 方法來進行語音合成，並在合成完成後設置 isSpeaking 為 false
+        text_to_voice.readString(text, speak_style, () =>
+        {
+            isSpeaking = false;
+        });
+    }
+
+    private IEnumerator AnimateFace()
+    {
+        int i = 1;
+        while (isSpeaking)
+        {
+            if (i == 1) yield return new WaitForSeconds(1.8f);
+            yield return new WaitForSeconds(0.15f);
+            animationControl.set_face("6");
+            // 時間間隔
+            yield return new WaitForSeconds(0.3f);
+            animationControl.set_face("1");
+            i++;
+
+        }
+
     }
 }
 
