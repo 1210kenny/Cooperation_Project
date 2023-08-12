@@ -9,7 +9,7 @@ using UnityEngine;
 public class PythonScript
 {
 
-    private static string translaterPath = @"C:python.exe";
+    //private static string translaterPath = @"C:python.exe";
     //python腳本資料夾
     private static string basePath = @"Assets\Python\";
 
@@ -28,13 +28,14 @@ public class PythonScript
     {
 
         string pyScriptPath ;
+        string pyScriptData = "";
         if (programName == "Search")
         {
-            pyScriptPath = basePath + "Search.py";
+            pyScriptPath = basePath + "Search.exe";
         }
         else if(programName=="gmail")
         {
-            pyScriptPath = basePath + "gmail.py";
+            pyScriptPath = basePath + "gmail.exe";
         }
         else
         {
@@ -42,17 +43,22 @@ public class PythonScript
             yield break;
         }
 
-        
-       
-      
-
+        bool first = true;
         // 判斷是否有參數
         if (argvs != null)
         {
             // 添加參數
             foreach (string item in argvs)
             {
-                pyScriptPath += " " + item;
+                if (first)
+                {
+                    first = false;
+                    pyScriptData = item;
+                }
+                else
+                {
+                    pyScriptData += " " + item;
+                }
             }
         }
         UnityEngine.Debug.Log(pyScriptPath);
@@ -60,11 +66,12 @@ public class PythonScript
         Process process = new Process();
 
         // ptython 的直譯器位置 python.exe
-        process.StartInfo.FileName = translaterPath;
-
+        //process.StartInfo.FileName = translaterPath;
+        process.StartInfo.FileName = pyScriptPath;
         process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
         process.StartInfo.UseShellExecute = false;
-        process.StartInfo.Arguments = pyScriptPath;     // 路徑
+        process.StartInfo.Arguments = pyScriptData;       // (exe用) 純參數
+        //process.StartInfo.Arguments = pyScriptPath;     // 路徑+參數
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;
