@@ -34,6 +34,10 @@ public class AnimationControl : MonoBehaviour
                 Set_Face_Surprised();
                 Debug.Log("set_face:5");
                 break;
+            case "6":
+                Set_Face_Talk();
+                Debug.Log("set_face:6");
+                break;
             default:
                 Set_Face_Default();
                 Debug.Log("set_face:d");
@@ -133,5 +137,9 @@ public class AnimationControl : MonoBehaviour
     public void Set_Body_Standing()
     {
         animator.SetTrigger("Body_Standing");
+    }
+    public void Set_Face_Talk()
+    {
+        animator.SetTrigger("Face_Talk");
     }
 }

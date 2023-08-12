@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37562b39ff933b245ac2f35d87edbcd6, type: 3}
   m_Name: BlendShape.Neutral
   m_EditorClassIdentifier: 
-  m_prefab: {fileID: 0}
+  m_prefab: {fileID: 1049575759791522986, guid: 52d1e1a3b0d4c4a79ad02145382dcf5e, type: 3}
   BlendShapeName: Neutral
   Preset: 1
   Values:

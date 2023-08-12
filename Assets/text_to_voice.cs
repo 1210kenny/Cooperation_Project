@@ -3,8 +3,12 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using UnityEngine.Networking;
+using UnityEngine;
+using System.Collections;
+using System.Threading;
 
-public class text_to_voice
+public class text_to_voice : MonoBehaviour
 {
     // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
     static string speechKey = Environment.GetEnvironmentVariable("SPEECH_KEY");
@@ -13,7 +17,9 @@ public class text_to_voice
     public static Microsoft.CognitiveServices.Speech.SpeechConfig config_;
     public static SpeechSynthesizer synthesizer;
     public string speak_style = "assistant";
-
+    public bool isSpeaking = false;
+    [SerializeField]
+    private AnimationControl animationControl;
     public text_to_voice(string key, string region)
     {
         config_ = SpeechConfig.FromSubscription(key, region);
@@ -49,12 +55,10 @@ public class text_to_voice
         synthesizer.StopSpeakingAsync();
     }
 
-    public void speak(string text)
-    {
-        readString(text, speak_style);
-    }
 
-    async public static void readString(string text, string style)
+
+    // 非同步方法用於執行語音合成
+    async public static void readString(string text, string style, Action onCompleted)
     {
         var ssml = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='zh-CN'>" +
             $"<voice name='zh-CN-XiaoxiaoNeural' style='{style}'>" +
@@ -66,6 +70,9 @@ public class text_to_voice
             if (result.Reason == ResultReason.SynthesizingAudioCompleted)
             {
                 Console.WriteLine($"Speech synthesized for text [{text}]");
+
+                // 調用 onCompleted 回調（如果有提供的話）以表示合成完成
+                onCompleted?.Invoke();
             }
             else if (result.Reason == ResultReason.Canceled)
             {
