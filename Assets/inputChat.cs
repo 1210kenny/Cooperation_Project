@@ -81,6 +81,10 @@ public class inputChat : MonoBehaviour
     public bool isSpeaking = false;
     public string speak_style = "assistant";
 
+    public string[] animationNamesToPlay = { "2", "5", "7" }; // 指定要播放的動畫名稱列表
+    public float minTimeBetweenAnimations = 10.0f; // 最小間隔時間
+    public float maxTimeBetweenAnimations = 20.0f; // 最大間隔時間
+
     void Start()
     {
         //讀取鑰匙
@@ -113,6 +117,7 @@ public class inputChat : MonoBehaviour
         Mytxt = ((TextAsset)Resources.Load("instruction")).text;
         //測試
         //print(Mytxt);
+        StartCoroutine(PlayAnimationEveryMinute());
 
         //chatGPT(聊天) 預設角色
         chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
@@ -699,6 +704,21 @@ public class inputChat : MonoBehaviour
 
         }
 
+    }
+    private IEnumerator PlayAnimationEveryMinute()
+    {
+        while (isSpeaking == false) 
+        {
+            int randomIndex = UnityEngine.Random.Range(0, animationNamesToPlay.Length);
+            string randomAnimation = animationNamesToPlay[randomIndex];
+
+            float randomTime = UnityEngine.Random.Range(minTimeBetweenAnimations, maxTimeBetweenAnimations);
+            yield return new WaitForSeconds(randomTime);
+            // 播放動畫
+            animationControl.set_action(randomAnimation);
+
+             
+        }
     }
 }
 
