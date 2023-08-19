@@ -75,6 +75,26 @@ public class AnimationControl : MonoBehaviour
                 Set_Body_Waving();
                 Debug.Log("set_action:7");
                 break;
+            case "8":
+                Set_Body_Yawn();
+                Debug.Log("set_action:8");
+                break;
+            case "9":
+                Set_Body_Happyidle();
+                Debug.Log("set_action:9");
+                break;
+            case "10":
+                Set_Body_ArmStretching();
+                Debug.Log("set_action:10");
+                break;
+            case "11":
+                Set_Body_Happy();
+                Debug.Log("set_action:11");
+                break;
+            case "12":
+                Set_Body_Excited();
+                Debug.Log("set_action:12");
+                break;
             default:
                 Set_Face_Default();
                 Debug.Log("set_action:d");
@@ -141,5 +161,25 @@ public class AnimationControl : MonoBehaviour
     public void Set_Face_Talk()
     {
         animator.SetTrigger("Face_Talk");
+    }
+    public void Set_Body_Yawn()
+    {
+        animator.SetTrigger("Body_Yawn");
+    }
+    public void Set_Body_Happyidle()
+    {
+        animator.SetTrigger("Body_Happyidle");
+    }
+    public void Set_Body_ArmStretching()
+    {
+        animator.SetTrigger("Body_ArmStretching");
+    }
+    public void Set_Body_Happy()
+    {
+        animator.SetTrigger("Body_Happy");
+    }
+    public void Set_Body_Excited()
+    {
+        animator.SetTrigger("Body_Excited");
     }
 }

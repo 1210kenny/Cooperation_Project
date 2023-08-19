@@ -81,7 +81,7 @@ public class inputChat : MonoBehaviour
     public bool isSpeaking = false;
     public string speak_style = "assistant";
 
-    public string[] animationNamesToPlay = { "2", "5", "7" }; // 指定要播放的動畫名稱列表
+    public string[] animationNamesToPlay = { "2", "7", "8", "9", "10", "11" }; // 指定要播放的動畫名稱列表
     public float minTimeBetweenAnimations = 10.0f; // 最小間隔時間
     public float maxTimeBetweenAnimations = 20.0f; // 最大間隔時間
 
@@ -123,7 +123,7 @@ public class inputChat : MonoBehaviour
         chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
         chatGPT.m_DataList.Add(new SendData("system", "我會在結尾輸出該次對話的情緒及動作、表情在括弧中，輸出規則為（情緒、動作、表情），請使用數字編號回答，" +
             "情緒：1.深情、2.憤怒、3.助理、4.冷靜、5.聊天、6.快樂、7.客戶服務、8.不滿、9.恐懼、10.友好、11.溫柔、12.抒情、13.新聞廣播、14.詩歌朗誦、15.悲傷、16.嚴肅；" +
-            "動作：1.普通地站著、2.雙手前後擺動顯得感到有點無聊、3.抱胸用力跺腳非常生氣、4.快速微微正式鞠躬、5.身體傾斜很不正式的鞠躬、6.低頭踢腳有點難過、7.大力揮手；" +
+            "動作：1.普通地站著、2.雙手前後擺動顯得感到有點無聊、3.抱胸用力跺腳非常生氣、4.快速微微正式鞠躬、5.身體傾斜很不正式的鞠躬、6.低頭踢腳有點難過、7.大力揮手、8.打哈欠以及伸懶腰、9.開心的晃動身體與手臂、10.伸展手臂、11.雀躍的搖晃手臂與身體、12.興奮的小跳；" +
             "表情：1.微笑、2.覺得好笑的笑臉（眼睛沒有完全閉起來，嘴巴也沒有張開）、3.生氣、4.哀傷、5.驚訝、6.覺得非常好笑的笑臉（眼睛完全閉起、嘴巴微微張開）；" +
             "範例：「（6、2、2）」"));
 
