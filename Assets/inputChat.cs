@@ -17,6 +17,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using static UnityEngine.UI.Image;
 using System.Threading;
+using UnityEditor.VersionControl;
 
 public class inputChat : MonoBehaviour
 {
@@ -60,6 +61,8 @@ public class inputChat : MonoBehaviour
     List<string> initialKeywords = new List<string> { "操作", "打開", "關閉", "關掉" , "開啟", "切換", "電燈", "音樂", "冷氣", "暫停", "播放"};
     //設備模式
     private bool equipmentMode = false;
+    //郵件模式
+    private Gmail gmailObject = null ;
     //觸發指令操作 (預設為進入設備模式 第一句話) 待指令集加入後改由偵測到指令集指令後觸發
     private bool firstEquipment = true;
     //語音辨識工具
@@ -76,7 +79,7 @@ public class inputChat : MonoBehaviour
 
     //搜索引擎API key
     string serpapi_Key = "";
-    string zapier_Key="";
+    public string zapier_Key="";
 
     public bool isSpeaking = false;
     public string speak_style = "assistant";
@@ -423,14 +426,14 @@ public class inputChat : MonoBehaviour
     }
 
     //GPT訊息 回傳動作
-    void CallBack_G(string _callback)
+    public void CallBack_G(string _callback)
     {
         print("send:" +_callback);
 
         //添加對話紀錄
-        chatGPT.m_DataList.Add(new SendData("assistant", _callback));
+        //chatGPT.m_DataList.Add(new SendData("assistant", _callback));
         //chatGPT狀態 (空閒)
-        chatGPT.taskState = 0;
+        //chatGPT.taskState = 0;
         //建構對話條
         var vChatWindow = chatWindow.transform.localPosition;
         var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
@@ -444,17 +447,17 @@ public class inputChat : MonoBehaviour
 
 
         //存取現有對話紀錄
-        var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
-        try
-        {
-            File.WriteAllText("MyFile.json", outputString);
-        }
+        //var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
+        //try
+        //{
+        //    File.WriteAllText("MyFile.json", outputString);
+        //}
         //無對話紀錄 則創建空紀錄檔案
-        catch (Exception e)
-        {
-            File.Create("MyFile.json");
-            File.WriteAllText("MyFile.json", outputString);
-        }
+        //catch (Exception e)
+        //{
+        //    File.Create("MyFile.json");
+        //    File.WriteAllText("MyFile.json", outputString);
+        //}
     }
 
     //GPT訊息 回傳動作 (任務辨識)
@@ -469,7 +472,10 @@ public class inputChat : MonoBehaviour
             task = 0;
         }
 
-        if (task == 2 || task == 4) {
+        if (task == 4)
+        { }
+        else if (task == 2)
+        {
             var vChatWindow = chatWindow.transform.localPosition;
             var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
             itemGround.transform.parent = chatWindow.transform;
@@ -587,7 +593,7 @@ public class inputChat : MonoBehaviour
         }
     }
 
-    private void checkChatsBoxToDelete()
+    public void checkChatsBoxToDelete()
     {
         if(chatWindow.transform.childCount > 5) {
             Destroy(chatWindow.transform.GetChild(0).gameObject);
@@ -602,6 +608,42 @@ public class inputChat : MonoBehaviour
     public void Quit()
     {
         Application.Quit();
+    }
+
+    public void SendMailDone()
+    {
+        chatGPT.taskState = 0;
+        gmailObject = null;
+    }
+
+    public void CancelSendMail()
+    {
+        chatGPT.taskState = 0;
+        gmailObject = null;
+        String text = "好的。已取消寄送Email。";
+        //建構對話條
+        var vChatWindow = chatWindow.transform.localPosition;
+        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
+        itemGround.transform.parent = chatWindow.transform;
+        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+        checkChatsBoxToDelete();
+        //AI語音播放
+        speak(text);
+    }
+
+    public void CancelMailMode()
+    {
+        chatGPT.taskState = 0;
+        gmailObject = null;
+        String text = "好的。";
+        //建構對話條
+        var vChatWindow = chatWindow.transform.localPosition;
+        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
+        itemGround.transform.parent = chatWindow.transform;
+        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+        checkChatsBoxToDelete();
+        //AI語音播放
+        speak(text);
     }
 
     void Update()
@@ -629,7 +671,10 @@ public class inputChat : MonoBehaviour
                     //輸入框顯示本次輸入的訊息
                     //chatInput.text = message;
                     //chatGPT請求 (做任務分類)
-                    toSendData_T(toMessage);
+                    if (gmailObject == null)
+                        toSendData_T(toMessage);
+                    else
+                        gmailObject.toSendData(toMessage);
                 }
             }
             //啟用語音辨識
@@ -657,7 +702,9 @@ public class inputChat : MonoBehaviour
                         toSendData(originalText);
                         break;
                     case 4:
-                        toSendData_G(originalText);
+                        gmailObject = new Gmail(chatGPT,this);
+                        gmailObject.toSendData(originalText);
+                        //toSendData_G(originalText);
                         Debug.Log("傳送郵件");
                         break;
                     case 3: //時效性問答 or 網路查詢

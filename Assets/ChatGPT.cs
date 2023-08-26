@@ -339,4 +339,66 @@ public class ChatGPT : MonoBehaviour
         //單次Post訊息結束
         print("PostEnd");
     }
+
+
+    // GPT Post訊息 (郵件模式)
+    public IEnumerator GetPostData_M(
+        List<SendData> t_DataList,
+        System.Action<string> _callback //異步回傳函式
+    )
+    {
+        print("to M: " + t_DataList[1].content);
+
+        long responseCode = -1;
+        while (responseCode != 200)
+        {
+            //建構 WebRequest POST
+            using (UnityWebRequest request = new UnityWebRequest(m_ApiUrl, "POST"))
+            {
+                //導入PostData
+                PostData _postData = new PostData
+                {
+                    model = "gpt-3.5-turbo",
+                    messages = t_DataList,
+                    temperature = 0.8f
+                };
+
+                //轉存格式
+                string _jsonText = JsonUtility.ToJson(_postData);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(_jsonText);
+                //導入request頭部資訊
+                request.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
+                request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+                request.SetRequestHeader("Authorization", string.Format("Bearer {0}", m_OpenAI_Key));
+
+                //發送
+                yield return request.SendWebRequest();
+
+                //後台回報 回傳碼 (200為成功)
+                print(request.responseCode);
+                responseCode = request.responseCode;
+                if (request.responseCode == 200)
+                {
+                    //取出回傳訊息
+                    string _msg = request.downloadHandler.text;
+                    MessageBack _textback = JsonUtility.FromJson<MessageBack>(_msg);
+                    if (_textback != null && _textback.choices.Count > 0)
+                    {
+
+                        string _backMsg = _textback.choices[0].message.content;
+                        _callback(_backMsg);
+                        yield return null;
+                    }
+
+                }
+            }
+            if (responseCode != 200)
+            {
+                yield return new WaitForSeconds(2f);//停止兩秒
+            }
+        }
+        //單次Post訊息結束
+        print("PostEnd");
+    }
 }
