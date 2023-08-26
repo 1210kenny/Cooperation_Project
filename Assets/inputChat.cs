@@ -56,6 +56,8 @@ public class inputChat : MonoBehaviour
     private const string callAI = "暫停播放";
     //AI語音播放器
     private text_to_voice Speaker;
+    //python控制
+    //private PythonScript PythonScript;
     //設備關鍵字
     //private const string callEquipment = "操作設備";
     List<string> initialKeywords = new List<string> { "操作", "打開", "關閉", "關掉" , "開啟", "切換", "電燈", "音樂", "冷氣", "暫停", "播放"};
@@ -158,6 +160,7 @@ public class inputChat : MonoBehaviour
         {
             File.Create("EquipmentLog.json");
         }
+
     }
    
     void OnDestroy()
