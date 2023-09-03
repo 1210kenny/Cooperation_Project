@@ -53,12 +53,14 @@ public class text_to_voice : MonoBehaviour
     public void Mute()
     {
         synthesizer.StopSpeakingAsync();
+        isSpeaking = false;
+        File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "1");
     }
 
 
 
     // 非同步方法用於執行語音合成
-    async public static void readString(string text, string style, Action onCompleted)
+    async public void readString(string text, string style, Action onCompleted)
     {
         var ssml = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='zh-CN'>" +
             $"<voice name='zh-CN-XiaoxiaoNeural' style='{style}'>" +

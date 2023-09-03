@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -192,7 +190,7 @@ public class ChatGPT : MonoBehaviour
     // GPT Post訊息 (聊天模式)
     public IEnumerator GetPostData(
         string _postWord,   //輸入訊息
-        System.Action<string,string> _callback //異步回傳函式
+        System.Action<string, string, string> _callback //異步回傳函式
     )
     {
         print(_postWord);
@@ -249,7 +247,7 @@ public class ChatGPT : MonoBehaviour
                         m_DataList.Add(new SendData("assistant", _backMsg));
 
                         //返回函式 並做情緒分析
-                        yield return inputAnalyze.chatGPT_mood(_backMsg, _callback);
+                        yield return inputAnalyze.chatGPT_mood(_backMsg, _postWord, _callback);
 
                         //返回函式
                         //_callback(_backMsg, emotion);

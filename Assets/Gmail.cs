@@ -1,14 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Windows;
-using static ChatGPT;
-using static System.Net.Mime.MediaTypeNames;
 
 public class Gmail
 {
@@ -72,14 +65,14 @@ public class Gmail
             "我是一個郵件任務分析器，請根據用戶輸入之文句，分析用戶之目的，並根據下列要求分類任務；" +
             "若用戶在任務中有告知其他寄件、查詢訊息，請使用括弧分開並依順序紀錄：" +
             "1.查詢郵件（查詢目標）" +
-            "2.寄送郵件（郵件主旨；收件人；郵件內容）" +
+            "2.寄送郵件（郵件標題；收件人；郵件內容）" +
             "5.中止寄信或查找信件" +
 
             "下列為範例：" +
-            "「最近一封郵件由誰寄發給我的，並且節錄主旨」，回答：「1（最新一封郵件寄件人以及信件主旨）」；" +
+            "「最近一封郵件由誰寄發給我的，並且節錄標題」，回答：「1（最新一封郵件寄件人以及信件標題）」；" +
             "「請幫我寄信給小明，有關會議記錄的資料」，回答：「2（有關會議記錄的資料；小明；）」；" +
             "「請幫我寄信，有關商品特價目錄，今晚會由依晨寄送至指定單位，並由單位批准。」，回答：「2（有關商品特價目錄；；今晚會由依晨寄送至指定單位，並由單位批准）」；" +
-            "「請幫我寄信，主旨：成績問題查詢，收件人：富城主任。」，回答：「2（成績問題查詢；富城主任；）」；" +
+            "「請幫我寄信，標題：成績問題查詢，收件人：富城主任。」，回答：「2（成績問題查詢；富城主任；）」；" +
             "「寄信，第一階段的簽收核對帳本何時送達。」，回答：「2（；；第一階段的簽收核對帳本何時送達）」；" +
             "「我不需要寄信了」，回答：「5」；" +
             "「不用幫我寄信」，回答：「5」；" +
@@ -100,16 +93,16 @@ public class Gmail
         m_DataList.Add(new ChatGPT.SendData("system",
             "我是一個郵件任務分析器，請根據用戶輸入之文句，分析用戶之目的，並根據下列要求分類任務；" +
             "若用戶在任務中有告知其他寄件、查詢訊息，請使用括弧分開並依順序紀錄："+
-            "1.郵件主旨（郵件主旨）" +
+            "1.郵件標題（郵件標題）" +
             "2.收件人（收件人）" +
             "3.郵件內容（郵件內容）" +
             "5.中止寄信" +
 
             "下列為範例：" +
-            "「主旨是會議記錄的資料」，回答：「1（會議記錄的資料）」；" +
+            "「標題是會議記錄的資料」，回答：「1（會議記錄的資料）」；" +
             "「信件內容是今晚會由依晨寄送至指定單位，並由單位批准。」，回答：「3（今晚會由依晨寄送至指定單位，並由單位批准）」；" +
             "「我要寄給富城主任。」，回答：「2（富城主任）」；" +
-            "「由AI節錄信件內容編寫主旨」，回答：「1（由AI節錄信件內容編寫）」；" +
+            "「由AI節錄信件內容編寫標題」，回答：「1（由AI節錄信件內容編寫）」；" +
             "「我不需要寄信了」，回答：「5」；" +
             "「不用幫我寄信」，回答：「5」；" +
             "「取消寄信」，回答：「5」；"
@@ -126,7 +119,7 @@ public class Gmail
         m_DataList.Add(new ChatGPT.SendData("system",
             "我是一個郵件任務分析器，請根據用戶輸入之文句，分析用戶之目的，並根據下列要求分類任務；" +
             "若用戶在任務中有告知其他寄件、查詢訊息，請使用括弧分開並依順序紀錄：" +
-            "1.郵件主旨（郵件主旨）" +
+            "1.郵件標題（郵件標題）" +
             "2.收件人（收件人）" +
             "3.郵件內容（郵件內容）" +
             "4.確認郵件沒問題" +
@@ -137,7 +130,7 @@ public class Gmail
             "「信件內容沒問題」，回答：「4」；" +
             "「收件人錯誤，是富城主任」，回答：「2（富城主任）」；" +
             "「收件人有誤」，回答：「2（）」；" +
-            "「郵件主旨更改為會員優惠活動申訴」，回答：「1（會員優惠活動申訴）」；" +
+            "「郵件標題更改為會員優惠活動申訴」，回答：「1（會員優惠活動申訴）」；" +
             "「內容應該是幫我邀請福岡要不要來吃晚餐」，回答：「3（幫我邀請福岡要不要來吃晚餐）」；" +
             "「我不需要寄信了」，回答：「5」；" +
             "「不用幫我寄信」，回答：「5」；" +
@@ -244,7 +237,7 @@ public class Gmail
                     "gmail",
                     chatGPT.getApiKey(),
                     inputChat.zapier_Key,
-                    $"寄送一封信件給{MailData.addressee_Email}；信件主旨：{MailData.subject}；信件內容：{MailData.mailText}"));
+                    $"寄送一封信件給{MailData.addressee_Email}；信件標題：{MailData.subject}；信件內容：{MailData.mailText}"));
                     inputChat.SendMailDone();
                     break;
                 case 5:
@@ -321,7 +314,7 @@ public class Gmail
         else if (string.IsNullOrEmpty(MailData.subject))
         {
             guideTask = 1;
-            AiSpack("請問信件主旨由您編寫嗎，或是由我直接節錄信件內容?");
+            AiSpack("請問信件標題由您編寫嗎，或是由我直接節錄信件內容?");
             threadLocker = false;
         }
         else
@@ -329,7 +322,7 @@ public class Gmail
             guideTask = 2;
             AiSpack(
                 "以下為寄送的郵件內容請您核對：\n" +
-                "主旨："+ MailData.subject + "\n" +
+                "標題："+ MailData.subject + "\n" +
                 "收件人：" + MailData.addressee + "（" + MailData.addressee_Email + ")" +"\n" +
                 "內容：" + MailData.mailText
                 );

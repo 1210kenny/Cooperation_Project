@@ -113,12 +113,13 @@ public class inputAnalyze : MonoBehaviour
 
     public static IEnumerator chatGPT_mood(
         string text,
-        System.Action<string, string> _callback //異步回傳函式
+        string text1,
+        System.Action<string,string, string> _callback //異步回傳函式
         )
     {
         string mood = Regex.Replace(Regex.Match(text, @"(（\S+）)|(\(\S+\))$").Value, @"(\(|\)|（|）)", string.Empty);
         string mainText = Regex.Replace(text, @"(（\S+）)|(\(\S+\))$", string.Empty);
-        _callback(mainText, mood);
+        _callback(mainText, text1, mood);
         yield return null;
     }
 }

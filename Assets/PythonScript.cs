@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using Unity.VisualScripting.FullSerializer;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class PythonScript
@@ -175,6 +171,39 @@ public class PythonScript
                 answer = e.Data;
             }
         }
+        yield return null;
+    }
+
+
+    public static IEnumerator speechRecognition(
+        System.Action<Process> _callback,
+        string key,
+        string region,
+        params string[] argvs            //給 python 的其他參數
+    )
+    {
+        string pyScriptPath;
+        pyScriptPath = @"speechRecognition.py";
+
+        UnityEngine.Debug.Log(pyScriptPath);
+
+        Process process = new Process();
+
+        // ptython 的直譯器位置 python.exe
+        process.StartInfo.FileName = translaterPath;
+        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.Arguments = $"{pyScriptPath} --key {key} --region {region}";     // 路徑
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.RedirectStandardInput = true;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.WorkingDirectory = @"Assets\Python\speechRecognition";
+        process.StartInfo.CreateNoWindow = true;        // 不顯示執行窗口
+        // 開始執行，獲取執行輸出，添加結果輸出委託
+        process.Start();
+        process.BeginOutputReadLine();
+
+        _callback(process);
         yield return null;
     }
 }

@@ -2,21 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using Microsoft.CognitiveServices.Speech;
-using Newtonsoft.Json.Linq;
 using static ChatGPT;
 using System.IO;
-using TreeEditor;
 using System.Linq;
-using System.Drawing;
 using System.Text.RegularExpressions;
-using static UnityEngine.UI.Image;
-using System.Threading;
+using System.Diagnostics;
 using UnityEditor.VersionControl;
 
 public class inputChat : MonoBehaviour
@@ -90,8 +83,18 @@ public class inputChat : MonoBehaviour
     public float minTimeBetweenAnimations = 10.0f; // 最小間隔時間
     public float maxTimeBetweenAnimations = 20.0f; // 最大間隔時間
 
+    //python 辨識說話的進程
+    public Process speechRecognitionProcess = null;
+
+    void talkProcess(Process process)
+    {
+        speechRecognitionProcess = process;
+    }
+
     void Start()
     {
+        File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "1");
+
         //讀取鑰匙
         try
         {
@@ -103,6 +106,9 @@ public class inputChat : MonoBehaviour
         {
             print("No have Key file.");
         }
+
+        //python 辨識說話的進程
+        StartCoroutine(PythonScript.speechRecognition(talkProcess, ApiKey[1].key, ApiKey[1].region));
 
         //AI語音播放器
         Speaker = new text_to_voice(ApiKey[0].key, ApiKey[0].region);
@@ -171,6 +177,7 @@ public class inputChat : MonoBehaviour
             recognizer.Dispose();
             recognizer = null;
         }
+        speechRecognitionProcess.Kill();
     }
 
     private async void InitializeSpeechRecognizer()
@@ -495,13 +502,13 @@ public class inputChat : MonoBehaviour
             checkChatsBoxToDelete();
         }
 
-        Debug.Log("task: " + task + " " + originalText);
+        UnityEngine.Debug.Log("task: " + task + " " + originalText);
         chatGPT.taskQueue.Enqueue(new SendQueue(originalText, task));
 
     }
 
     //GPT訊息 回傳動作
-    private void CallBack(string _callback, string emotion)
+    private void CallBack(string _callback, string sendMessage, string emotion)
     {
         //取得回傳訊息
         _callback = _callback.Trim();
@@ -525,7 +532,7 @@ public class inputChat : MonoBehaviour
         last_callback = _callback;
 
         if(equipmentMode)
-            toSendData_E(message);
+            toSendData_E(sendMessage);
         else
             //chatGPT狀態 (空閒)
             chatGPT.taskState = 0;
@@ -610,6 +617,7 @@ public class inputChat : MonoBehaviour
 
     public void Quit()
     {
+        speechRecognitionProcess.Kill();
         Application.Quit();
     }
 
@@ -653,9 +661,43 @@ public class inputChat : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            speechRecognitionProcess.Kill();
             Application.Quit();
         }
-
+        
+        lock (threadLocker)
+        {
+            //語音辨識完成
+            if (Rec == 0)
+            {
+                Rec = 1;
+                try
+                {
+                    var strData = File.ReadAllText(@"Assets\Python\speechRecognition\output.txt");
+                    if (!String.IsNullOrEmpty(strData))
+                    {
+                        File.WriteAllText(@"Assets\Python\speechRecognition\output.txt", string.Empty);
+                        Match m = Regex.Match(strData, @"\[\'\S+\'\]", RegexOptions.IgnoreCase);
+                        if (m.Success)
+                        {
+                            string toMessage = Regex.Replace(m.Value, @"[\[,',\]]", string.Empty);
+                            //print(text);
+                            //停止現有的AI對話與音輸出
+                            Speaker.Mute();
+                            //chatGPT請求 (做任務分類)
+                            if (gmailObject == null)
+                                toSendData_T(toMessage);
+                            else
+                                gmailObject.toSendData(toMessage);
+                        }
+                    }
+                }
+                catch { }
+                Rec = 0;
+            }
+        }
+        
+        /*
         //控制語音辨識線程
         lock (threadLocker)
         {
@@ -686,7 +728,7 @@ public class inputChat : MonoBehaviour
                 InitializeSpeechRecognizer();
             }
         }
-
+        */
         lock (chatGPT.threadLocker)
         {
             if (chatGPT.taskState == 0 && chatGPT.taskQueue.Count > 0)
@@ -708,7 +750,7 @@ public class inputChat : MonoBehaviour
                         gmailObject = new Gmail(chatGPT,this);
                         gmailObject.toSendData(originalText);
                         //toSendData_G(originalText);
-                        Debug.Log("傳送郵件");
+                        UnityEngine.Debug.Log("傳送郵件");
                         break;
                     case 3: //時效性問答 or 網路查詢
                             //print("需使用網路查詢");
@@ -728,14 +770,16 @@ public class inputChat : MonoBehaviour
         // 將語音合成標誌設置為 true，表示正在進行語音合成
         isSpeaking = true;
 
+        File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "2");
 
         // 開始執行 Coroutine，用於動畫的重複執行
         StartCoroutine(AnimateFace());
 
         // 調用 readString 方法來進行語音合成，並在合成完成後設置 isSpeaking 為 false
-        text_to_voice.readString(text, speak_style, () =>
+        Speaker.readString(text, speak_style, () =>
         {
             isSpeaking = false;
+            File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "1");
         });
     }
 
