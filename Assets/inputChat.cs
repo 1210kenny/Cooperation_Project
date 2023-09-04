@@ -11,6 +11,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using UnityEditor.VersionControl;
+using static UnityEngine.UI.Image;
+using System.Threading;
+using UnityEngine.SceneManagement;
+using System.Timers;
 
 public class inputChat : MonoBehaviour
 {
@@ -53,11 +57,11 @@ public class inputChat : MonoBehaviour
     //private PythonScript PythonScript;
     //設備關鍵字
     //private const string callEquipment = "操作設備";
-    List<string> initialKeywords = new List<string> { "操作", "打開", "關閉", "關掉" , "開啟", "切換", "電燈", "音樂", "冷氣", "暫停", "播放"};
+    List<string> initialKeywords = new List<string> { "操作", "打開", "關閉", "關掉", "開啟", "切換", "電燈", "音樂", "冷氣", "暫停", "播放" };
     //設備模式
     private bool equipmentMode = false;
     //郵件模式
-    private Gmail gmailObject = null ;
+    private Gmail gmailObject = null;
     //觸發指令操作 (預設為進入設備模式 第一句話) 待指令集加入後改由偵測到指令集指令後觸發
     private bool firstEquipment = true;
     //語音辨識工具
@@ -67,14 +71,14 @@ public class inputChat : MonoBehaviour
     //指令選擇
     private Command_control Command_control = new Command_control();
     //用來存放文本內容
-    private string Mytxt;       
+    private string Mytxt;
     [SerializeField]
-    private AnimationControl animationControl; 
+    private AnimationControl animationControl;
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
     //搜索引擎API key
     string serpapi_Key = "";
-    public string zapier_Key="";
+    public string zapier_Key = "";
 
     public bool isSpeaking = false;
     public string speak_style = "assistant";
@@ -82,6 +86,7 @@ public class inputChat : MonoBehaviour
     public string[] animationNamesToPlay = { "2", "7", "8", "9", "10", "11" }; // 指定要播放的動畫名稱列表
     public float minTimeBetweenAnimations = 10.0f; // 最小間隔時間
     public float maxTimeBetweenAnimations = 20.0f; // 最大間隔時間
+    public bool inputvoice = false;
 
     //python 辨識說話的進程
     public Process speechRecognitionProcess = null;
@@ -129,6 +134,8 @@ public class inputChat : MonoBehaviour
         //測試
         //print(Mytxt);
         StartCoroutine(PlayAnimationEveryMinute());
+        // 開始一個協程來監視Rec的值
+        StartCoroutine(MonitorRec());
 
         //chatGPT(聊天) 預設角色
         chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
@@ -158,7 +165,7 @@ public class inputChat : MonoBehaviour
         try
         {
             var inputString = File.ReadAllText("EquipmentLog.json");
-            if(!String.IsNullOrEmpty(inputString))
+            if (!String.IsNullOrEmpty(inputString))
                 chatGPT.e_DataList = JsonUtility.FromJson<Serialization<SendData>>(inputString).ToList();
         }
         //無設備操作 則創建空紀錄檔案
@@ -168,7 +175,7 @@ public class inputChat : MonoBehaviour
         }
 
     }
-   
+
     void OnDestroy()
     {
         // 釋放 SpeechRecognizer 物件資源
@@ -205,6 +212,7 @@ public class inputChat : MonoBehaviour
         {
             newMessage = result.Text;
             Rec = 2;
+            inputvoice = true;
             //newMessage = "打開電燈。";
             //呼叫字串比較，不是由AI回答，並且提到"操作設備"則進入設備模式
             /*
@@ -229,7 +237,8 @@ public class inputChat : MonoBehaviour
         }
         //強制結束播放（不用等回傳到）ChatGPT的時間
         var check_num1 = ClassSim.MatchKeywordSim(callAI, newMessage);
-        if(check_num1 >= 0.5){
+        if (check_num1 >= 0.5)
+        {
             Rec = 0;
             //停止現有的AI對話與音輸出
             Speaker.Mute();
@@ -237,7 +246,8 @@ public class inputChat : MonoBehaviour
         }
         //呼叫字串比較，只要大於一定值就直接無視
         var check_num = ClassSim.MatchKeywordSim(last_callback, newMessage);
-        if(check_num >= 0.5){
+        if (check_num >= 0.5)
+        {
             Rec = 0;
             return;
         }
@@ -302,7 +312,8 @@ public class inputChat : MonoBehaviour
         //清空輸入框
         //chatInput.text = "";
         //建構對話條
-        if (!equipmentMode ) {
+        if (!equipmentMode)
+        {
             /*
             var vChatWindow = chatWindow.transform.localPosition;
             var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
@@ -311,7 +322,8 @@ public class inputChat : MonoBehaviour
             checkChatsBoxToDelete();
             */
         }
-        else if (equipmentMode && firstEquipment) {
+        else if (equipmentMode && firstEquipment)
+        {
             /*
             var vChatWindow = chatWindow.transform.localPosition;
             var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
@@ -340,7 +352,8 @@ public class inputChat : MonoBehaviour
     //GPT訊息 發送動作 (設備模式)
     public void toSendData_E(
         string _msg    //文字消息
-    ){
+    )
+    {
         print(_msg);
         //
         //不與對話行交互 (無須印出對話)
@@ -403,7 +416,7 @@ public class inputChat : MonoBehaviour
     //GPT訊息 回傳動作 (網路查詢)
     void CallBack_I(string _callback)
     {
-        print("search:" +_callback);
+        print("search:" + _callback);
 
         //添加對話紀錄 (紀錄Google搜尋結果)
         chatGPT.m_DataList.Add(new SendData("assistant", _callback));
@@ -438,7 +451,7 @@ public class inputChat : MonoBehaviour
     //GPT訊息 回傳動作
     public void CallBack_G(string _callback)
     {
-        print("send:" +_callback);
+        print("send:" + _callback);
 
         //添加對話紀錄
         //chatGPT.m_DataList.Add(new SendData("assistant", _callback));
@@ -471,14 +484,16 @@ public class inputChat : MonoBehaviour
     }
 
     //GPT訊息 回傳動作 (任務辨識)
-    private void CallBack_T(string _callback,string originalText)
+    private void CallBack_T(string _callback, string originalText)
     {
         int task = 0;
-        
-        try{
+
+        try
+        {
             task = int.Parse(Regex.Replace(_callback, @"\D", string.Empty));
         }
-        catch{
+        catch
+        {
             task = 0;
         }
 
@@ -531,7 +546,7 @@ public class inputChat : MonoBehaviour
         animationControl.set_face(now_face);
         last_callback = _callback;
 
-        if(equipmentMode)
+        if (equipmentMode)
             toSendData_E(sendMessage);
         else
             //chatGPT狀態 (空閒)
@@ -548,7 +563,7 @@ public class inputChat : MonoBehaviour
         //
         StartCoroutine(TurnToLastLine());
 
-        
+
         //存取現有對話紀錄
         var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
         try
@@ -568,13 +583,15 @@ public class inputChat : MonoBehaviour
     {
         //取得回傳訊息
         _callback = _callback.Trim();
-        print("E: "+_callback);
+        print("E: " + _callback);
         String equipmentState;
-        if(Command_control.choose_command(_callback)){
+        if (Command_control.choose_command(_callback))
+        {
             StartCoroutine(TurnToLastLine());
             equipmentState = "(裝置狀態)裝置已操作成功，裝置目前狀態:啟用";
         }
-        else{
+        else
+        {
             StartCoroutine(TurnToLastLine());
             equipmentState = "(裝置狀態)查無此裝置";
         }
@@ -605,7 +622,8 @@ public class inputChat : MonoBehaviour
 
     public void checkChatsBoxToDelete()
     {
-        if(chatWindow.transform.childCount > 5) {
+        if (chatWindow.transform.childCount > 5)
+        {
             Destroy(chatWindow.transform.GetChild(0).gameObject);
         }
     }
@@ -664,7 +682,7 @@ public class inputChat : MonoBehaviour
             speechRecognitionProcess.Kill();
             Application.Quit();
         }
-        
+
         lock (threadLocker)
         {
             //語音辨識完成
@@ -696,7 +714,7 @@ public class inputChat : MonoBehaviour
                 Rec = 0;
             }
         }
-        
+
         /*
         //控制語音辨識線程
         lock (threadLocker)
@@ -747,7 +765,7 @@ public class inputChat : MonoBehaviour
                         toSendData(originalText);
                         break;
                     case 4:
-                        gmailObject = new Gmail(chatGPT,this);
+                        gmailObject = new Gmail(chatGPT, this);
                         gmailObject.toSendData(originalText);
                         //toSendData_G(originalText);
                         UnityEngine.Debug.Log("傳送郵件");
@@ -801,7 +819,7 @@ public class inputChat : MonoBehaviour
     }
     private IEnumerator PlayAnimationEveryMinute()
     {
-        while (isSpeaking == false) 
+        while (isSpeaking == false)
         {
             int randomIndex = UnityEngine.Random.Range(0, animationNamesToPlay.Length);
             string randomAnimation = animationNamesToPlay[randomIndex];
@@ -811,7 +829,31 @@ public class inputChat : MonoBehaviour
             // 播放動畫
             animationControl.set_action(randomAnimation);
 
-             
+
+        }
+    }
+    private bool isCounting = true; // 用來檢測是否正在計時
+    private float timer = 0f; // 計時器
+    IEnumerator MonitorRec()
+    {
+        while (isCounting)
+        {
+            yield return new WaitForSeconds(1f); // 每秒等待一次
+
+            timer += 1f; // 計時遞增
+
+            // 如果Rec變為2，重新計時
+            if (inputvoice == true)
+            {
+                timer = 0f;
+                inputvoice = false;
+            }
+
+            if (timer >= 30f && inputvoice == false)
+            {
+                SceneManager.LoadScene(0);
+                isCounting = false;
+            }
         }
     }
 }
@@ -854,13 +896,13 @@ public class ClassSim
             arrB.Add(matchkeywordList.Where(x => x == str).Count());
         }
         double num = 0;
-        double numA=0;
-        double numB=0;
+        double numA = 0;
+        double numB = 0;
         for (int i = 0; i < unionKeyword.Count; i++)
-        { 
-            num+=arrA[i]*arrB[i];
-            numA+=Math.Pow(arrA[i], 2);
-            numB+=Math.Pow(arrB[i], 2);
+        {
+            num += arrA[i] * arrB[i];
+            numA += Math.Pow(arrA[i], 2);
+            numB += Math.Pow(arrB[i], 2);
         }
         double cos = num / (Math.Sqrt(numA) * Math.Sqrt(numB));
         return cos;
@@ -882,7 +924,8 @@ public class KeywordComparer
         foreach (string keyword in keywords)
         {
             double similarity = ClassSim.MatchKeywordSim(keyword, matchKeyword);
-            if(similarity > 0.4){
+            if (similarity > 0.4)
+            {
                 return true;
             }
         }
