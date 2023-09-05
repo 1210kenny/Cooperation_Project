@@ -6,7 +6,7 @@ using UnityEngine;
 public class PythonScript
 {
 
-    private static string translaterPath = @"C:python.exe";
+    private static string translaterPath = @"C:\Users\陳子嫚\AppData\Local\Microsoft\WindowsApps\python.exe";
     //python腳本資料夾
     private static string basePath = @"Assets\Python\";
 
