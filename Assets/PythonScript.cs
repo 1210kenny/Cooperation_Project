@@ -1,14 +1,29 @@
-﻿using System.Collections;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
+using System.Text;
+using System.Threading;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
-
 public class PythonScript
 {
 
-    private static string translaterPath = @"C:\Users\陳子嫚\AppData\Local\Microsoft\WindowsApps\python.exe";
+    private static string translaterPath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"C:python.exe" : @"/Users/wangyikai/opt/anaconda3/bin/python3.9";
     //python腳本資料夾
-    private static string basePath = @"Assets\Python\";
+    //private static string basePath = @"Assets\Python\";
+    private static string basePath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\" : @"Assets/Python/";
+    static string ConvertWindowsToMacOSPath(string windowsPath)
+    {
+    	if(Path.DirectorySeparatorChar == '/')
+    	{
+	        string fullPath = Path.GetFullPath(windowsPath);
+    	    string macOSPath = fullPath.Replace('\\', Path.DirectorySeparatorChar);
+	        return macOSPath;
+    	}else return windowsPath;
+    }
 
     // Unity 調用 Python
     // 
@@ -28,11 +43,11 @@ public class PythonScript
         string pyScriptData = "";
         if (programName == "Search")
         {
-            pyScriptPath = basePath + "Search.exe";
+            pyScriptPath = basePath + "Search.py";
         }
         else if(programName=="gmail")
         {
-            pyScriptPath = basePath + "gmail.exe";
+            pyScriptPath = basePath + "gmail.py";
         }
         else
         {
@@ -58,6 +73,8 @@ public class PythonScript
                 }
             }
         }
+
+        pyScriptPath = ConvertWindowsToMacOSPath(pyScriptPath);
         UnityEngine.Debug.Log(pyScriptPath);
 
         Process process = new Process();
@@ -65,7 +82,7 @@ public class PythonScript
         // ptython 的直譯器位置 python.exe
         //process.StartInfo.FileName = translaterPath;
         process.StartInfo.FileName = pyScriptPath;
-        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
+        //process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.Arguments = pyScriptData;       // (exe用) 純參數
         //process.StartInfo.Arguments = pyScriptPath;     // 路徑+參數
@@ -136,13 +153,14 @@ public class PythonScript
                 pyScriptPath += " " + item;
             }
         }
+        pyScriptPath = ConvertWindowsToMacOSPath(pyScriptPath);
         UnityEngine.Debug.Log(pyScriptPath);
 
         Process process = new Process();
 
         // ptython 的直譯器位置 python.exe
         process.StartInfo.FileName = translaterPath;
-        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
+        //process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.Arguments = pyScriptPath;     // 路徑
         process.StartInfo.RedirectStandardError = true;
@@ -188,16 +206,17 @@ public class PythonScript
         UnityEngine.Debug.Log(pyScriptPath);
 
         Process process = new Process();
-
+        string WorkingDirectorypath = @"Assets\Python\speechRecognition";
+        WorkingDirectorypath = ConvertWindowsToMacOSPath(WorkingDirectorypath);
         // ptython 的直譯器位置 python.exe
         process.StartInfo.FileName = translaterPath;
-        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
+        //process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.Arguments = $"{pyScriptPath} --key {key} --region {region}";     // 路徑
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.WorkingDirectory = @"Assets\Python\speechRecognition";
+        process.StartInfo.WorkingDirectory = WorkingDirectorypath;
         process.StartInfo.CreateNoWindow = true;        // 不顯示執行窗口
         // 開始執行，獲取執行輸出，添加結果輸出委託
         process.Start();

@@ -11,7 +11,7 @@ class Light_control
     public async Task Switch()
     {
         var info = await Info();
-        string url = "http://192.168.0.100:8081/zeroconf/switch";
+        string url = "http://192.168.2.3:8081/zeroconf/switch";
         string jsonBodyoff = @"{""deviceid"":""1000b47c38"",""data"":{""switch"":""off""}}";
         string jsonBodyon = @"{""deviceid"":""1000b47c38"",""data"":{""switch"":""on""}}";
 
@@ -43,7 +43,7 @@ class Light_control
 
    public async Task<Dictionary<string, object>> Info()
 {
-    string url = "http://192.168.0.100:8081/zeroconf/info";
+    string url = "http://192.168.2.3:8081/zeroconf/info";
     string jsonBody = @"{""deviceid"":""1000b47c38"",""data"":{}}";
 
     using (HttpClient client = new HttpClient())

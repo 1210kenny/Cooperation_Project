@@ -10,6 +10,8 @@ using System.Threading;
 
 public class text_to_voice : MonoBehaviour
 {
+    private string modePath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\speechRecognition\mode.txt" : @"Assets/Python/speechRecognition/mode.txt";
+
     // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
     static string speechKey = Environment.GetEnvironmentVariable("SPEECH_KEY");
     static string speechRegion = Environment.GetEnvironmentVariable("SPEECH_REGION");
@@ -54,7 +56,7 @@ public class text_to_voice : MonoBehaviour
     {
         synthesizer.StopSpeakingAsync();
         isSpeaking = false;
-        File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "1");
+        File.WriteAllText(modePath, "1");
     }
 
 

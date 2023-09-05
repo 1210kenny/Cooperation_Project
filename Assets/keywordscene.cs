@@ -6,7 +6,7 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using System.Threading;
 using System;
-
+using System.IO;
 public class keywordscene : MonoBehaviour
 {
     private KeywordRecognizer keywordRecognizer;
@@ -18,13 +18,22 @@ public class keywordscene : MonoBehaviour
 
         string scriptDirectory = System.IO.Path.GetDirectoryName(Application.dataPath);
         string keywordModelPath = "Assets\\AssetsKeywordModels\\0ac84afd-526e-4375-b32d-8c28db473034.table";
+        keywordModelPath = ConvertWindowsToMacOSPath(keywordModelPath);
         Debug.Log(keywordModelPath);
         keywordModel = KeywordRecognitionModel.FromFile(keywordModelPath);
         var audioConfig = AudioConfig.FromDefaultMicrophoneInput();
         keywordRecognizer = new KeywordRecognizer(audioConfig);
         StartKeywordRecognition();
     }
-
+    static string ConvertWindowsToMacOSPath(string windowsPath)
+    {
+    	if(Path.DirectorySeparatorChar == '/')
+    	{
+	        string fullPath = Path.GetFullPath(windowsPath);
+    	    string macOSPath = fullPath.Replace('\\', Path.DirectorySeparatorChar);
+	        return macOSPath;
+    	}else return windowsPath;
+    }
     // Update is called once per frame
     private async void StartKeywordRecognition()
     {
@@ -34,14 +43,14 @@ public class keywordscene : MonoBehaviour
 
             if (result.Reason == ResultReason.RecognizedKeyword)
             {
-                // ¿ëÃÑ¨ìÃöÁä¦r¡A³o¸Ì¥i¥H²K¥[¤Á´«³õ´ºªºÅÞ¿è
+                // ï¿½ï¿½ï¿½Ñ¨ï¿½ï¿½ï¿½ï¿½ï¿½rï¿½Aï¿½oï¿½Ì¥iï¿½Hï¿½Kï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¿ï¿½
                 SceneManager.LoadScene(1);
             }
         }
         catch (Exception ex)
         {
-            // ³B²zÃÑ§O¹Lµ{¤¤¥i¯àµo¥Íªº¥ô¦ó²§±`
-            Debug.LogError("ÃöÁä¦rÃÑ§O¿ù»~¡G" + ex.Message);
+            // ï¿½Bï¿½zï¿½Ñ§Oï¿½Lï¿½{ï¿½ï¿½ï¿½iï¿½ï¿½oï¿½Íªï¿½ï¿½ï¿½ï¿½ó²§±`
+            Debug.LogError("ï¿½ï¿½ï¿½ï¿½rï¿½Ñ§Oï¿½ï¿½ï¿½~ï¿½G" + ex.Message);
         }
     }
 

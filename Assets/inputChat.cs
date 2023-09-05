@@ -76,6 +76,9 @@ public class inputChat : MonoBehaviour
     private AnimationControl animationControl;
     [SerializeField] public List<ApiKeyData> ApiKey = new List<ApiKeyData>();
 
+    private string modePath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\speechRecognition\mode.txt" : @"Assets/Python/speechRecognition/mode.txt";
+    private string outputPath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\speechRecognition\output.txt" : @"Assets/Python/speechRecognition/output.txt";
+
     //搜索引擎API key
     string serpapi_Key = "";
     public string zapier_Key = "";
@@ -96,9 +99,19 @@ public class inputChat : MonoBehaviour
         speechRecognitionProcess = process;
     }
 
+    static string ConvertWindowsToMacOSPath(string windowsPath)
+    {
+    	if(Path.DirectorySeparatorChar == '/')
+    	{
+	        string fullPath = Path.GetFullPath(windowsPath);
+    	    string macOSPath = fullPath.Replace('\\', Path.DirectorySeparatorChar);
+	        return macOSPath;
+    	}else return windowsPath;
+    }
+
     void Start()
     {
-        File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "1");
+        File.WriteAllText(modePath, "1");
 
         //讀取鑰匙
         try
@@ -691,10 +704,10 @@ public class inputChat : MonoBehaviour
                 Rec = 1;
                 try
                 {
-                    var strData = File.ReadAllText(@"Assets\Python\speechRecognition\output.txt");
+                    var strData = File.ReadAllText(outputPath);
                     if (!String.IsNullOrEmpty(strData))
                     {
-                        File.WriteAllText(@"Assets\Python\speechRecognition\output.txt", string.Empty);
+                        File.WriteAllText(outputPath, string.Empty);
                         Match m = Regex.Match(strData, @"\[\'\S+\'\]", RegexOptions.IgnoreCase);
                         if (m.Success)
                         {
@@ -788,7 +801,7 @@ public class inputChat : MonoBehaviour
         // 將語音合成標誌設置為 true，表示正在進行語音合成
         isSpeaking = true;
 
-        File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "2");
+        File.WriteAllText(modePath, "2");
 
         // 開始執行 Coroutine，用於動畫的重複執行
         StartCoroutine(AnimateFace());
@@ -797,7 +810,7 @@ public class inputChat : MonoBehaviour
         Speaker.readString(text, speak_style, () =>
         {
             isSpeaking = false;
-            File.WriteAllText(@"Assets\Python\speechRecognition\mode.txt", "1");
+            File.WriteAllText(modePath, "1");
         });
     }
 
