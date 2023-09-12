@@ -117,17 +117,19 @@ public class ChatGPT : MonoBehaviour
         List<SendData> t_DataList = new List<SendData>();
         t_DataList.Add(new SendData("system", 
             "我是一個任務分析器，請根據用戶輸入之文句，分析用戶之目的，並選擇下列編號：" +
-            "1.聊天或非即時性問題詢問、" +
-            "4.傳送郵件給tszmen1104@gmail.com或取得最新郵件內容或新增行事曆和行程、"+
-            "2.操作或控制實體設備，郵件和行事曆除外、" +
+            "1.聊天或非即時性問題詢問、討論事宜；" +
+            "2.操作或控制實體設備，郵件和行事曆除外；" +
             "3.詢問有時效性的知識或問題 ;" +
-           
+            "4.傳送或查詢郵件、變更信箱；" +
+
             "下列為範例：" +
             "「請問2022年有甚麼大事件發生？」，回答：「3」；" +
             "「請幫我用中文總結最後一個tszmen1104gmail.com發給我的郵件。把總結傳送給tszmen1104gmail.com。」，回答：「4」；" +
+            "「幫我更換到阿華的信箱。」，回答：「4」；" +
             "「請幫我新增行程，8/1晚上去吃晚飯。」，回答：「4」；" +
             "「請幫我打開電燈，並且調整成暖光模式。」，回答：「2」；" +
             "「蘋果派是甚麼？」，回答：「1」；" +
+            "「我想跟你討論關於XXX的問題，你認為何者更好?」，回答：「1」；" +
             "如果用戶在句中有明確表達需要使用網路查詢資料則回答：「3」，如 ：「請幫我上網查詢蘋果派的做法。」" +
             "不要回答除編號以外的東西。"));
 
@@ -190,7 +192,7 @@ public class ChatGPT : MonoBehaviour
     // GPT Post訊息 (聊天模式)
     public IEnumerator GetPostData(
         string _postWord,   //輸入訊息
-        System.Action<string, string, string> _callback //異步回傳函式
+        System.Action<string, string, string, bool> _callback //異步回傳函式
     )
     {
         print(_postWord);

@@ -15,6 +15,7 @@ using static UnityEngine.UI.Image;
 using System.Threading;
 using UnityEngine.SceneManagement;
 using System.Timers;
+using static Gmail;
 
 public class inputChat : MonoBehaviour
 {
@@ -124,7 +125,8 @@ public class inputChat : MonoBehaviour
         {
             print("No have Key file.");
         }
-
+        //清除已存在語音輸出文件中的資料
+        File.WriteAllText(outputPath, string.Empty);
         //python 辨識說話的進程
         StartCoroutine(PythonScript.speechRecognition(talkProcess, ApiKey[1].key, ApiKey[1].region));
 
@@ -156,7 +158,9 @@ public class inputChat : MonoBehaviour
             "情緒：1.深情、2.憤怒、3.助理、4.冷靜、5.聊天、6.快樂、7.客戶服務、8.不滿、9.恐懼、10.友好、11.溫柔、12.抒情、13.新聞廣播、14.詩歌朗誦、15.悲傷、16.嚴肅；" +
             "動作：1.普通地站著、2.雙手前後擺動顯得感到有點無聊、3.抱胸用力跺腳非常生氣、4.快速微微正式鞠躬、5.身體傾斜很不正式的鞠躬、6.低頭踢腳有點難過、7.大力揮手、8.打哈欠以及伸懶腰、9.開心的晃動身體與手臂、10.伸展手臂、11.雀躍的搖晃手臂與身體、12.興奮的小跳；" +
             "表情：1.微笑、2.覺得好笑的笑臉（眼睛沒有完全閉起來，嘴巴也沒有張開）、3.生氣、4.哀傷、5.驚訝、6.覺得非常好笑的笑臉（眼睛完全閉起、嘴巴微微張開）；" +
-            "範例：「（6、2、2）」"));
+            "範例：「（6、2、2）」、「（3、4、1）」"));
+        chatGPT.m_DataList.Add(new SendData("system", "請判斷用戶關於這個主題的對話是否結束，若對話結束請在句子、情緒及動作的結尾附上（End）" +
+            "範例：「（End）」"));
 
         //chatGPT(設備) 預設角色
         chatGPT.e_DataList.Add(new SendData("system", Mytxt));
@@ -536,7 +540,7 @@ public class inputChat : MonoBehaviour
     }
 
     //GPT訊息 回傳動作
-    private void CallBack(string _callback, string sendMessage, string emotion)
+    private void CallBack(string _callback, string sendMessage, string emotion, bool isEnd)
     {
         //取得回傳訊息
         _callback = _callback.Trim();
@@ -552,6 +556,10 @@ public class inputChat : MonoBehaviour
             print($"now_emo: {now_emo}");
             print($"now_act: {now_act}");
             print($"now_face: {now_face}");
+        }
+        if (isEnd)
+        {
+            print($"ChatGPT - 判斷對話結束");
         }
         //根據回傳的數字決定音調、表情、動作
         Speaker.ChangeEmotion(now_emo);
@@ -688,6 +696,90 @@ public class inputChat : MonoBehaviour
         speak(text);
     }
 
+    public void CancelChangeMailBox()
+    {
+        chatGPT.taskState = 0;
+        gmailObject = null;
+        String text = "好的。";
+        //建構對話條
+        var vChatWindow = chatWindow.transform.localPosition;
+        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
+        itemGround.transform.parent = chatWindow.transform;
+        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+        checkChatsBoxToDelete();
+        //AI語音播放
+        speak(text);
+    }
+
+    private Gmail.MailBoxData selectLestMailBox()
+    {
+        List<SendData> mb_DataList = new List<SendData>();
+        int selectLest = -1;
+
+        //讀取現有信箱紀錄
+        try
+        {
+            var inputString = File.ReadAllText("EmailBox_Keys.json");
+            if (!String.IsNullOrEmpty(inputString))
+                mb_DataList = JsonUtility.FromJson<Serialization<SendData>>(inputString).ToList();
+        }
+        //無信箱紀錄 則創建空信箱紀錄
+        catch (Exception e)
+        {
+            File.Create("EmailBox_Keys.json");
+            File.WriteAllText("EmailBox_Keys.json",
+                @"{""target"":[{""role"":""system"",""content"":""你是一個密鑰管理資料庫請根據用戶輸入的文本判斷要調取何個資料庫。並將訊息原封不動輸出。""}]}"
+                );
+        }
+
+        try
+        {
+            var inputString = File.ReadAllText("MailSelect.txt");
+            selectLest = int.Parse(inputString);
+        }
+        //無信箱紀錄 則創建空信箱紀錄
+        catch (Exception e)
+        {
+            File.WriteAllText("MailSelect.txt", @"1");
+        }
+
+        try
+        {
+            string name = Regex.Replace(
+                Regex.Match(
+                    mb_DataList[selectLest].content,
+                    @"\S+的信箱"
+                ).Value,
+                @"的信箱", string.Empty
+            );
+            string key = Regex.Replace(
+                Regex.Match(
+                    mb_DataList[selectLest].content,
+                    @"(（\S+）)|(\(\S+\))$"
+                ).Value,
+                @"((編號\d+：)|\(|\)|（|）)", string.Empty
+            );
+            print($"name:{name},key:{key}");
+            return new Gmail.MailBoxData(name, key);
+        }
+        //無信箱紀錄
+        catch (Exception e)
+        {
+            chatGPT.taskState = 0;
+            gmailObject = null;
+            String text = "尚未設置好信箱權限，故無法執行此操作。";
+            //建構對話條
+            var vChatWindow = chatWindow.transform.localPosition;
+            var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
+            itemGround.transform.parent = chatWindow.transform;
+            itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+            checkChatsBoxToDelete();
+            //AI語音播放
+            speak(text);
+            return null;
+        }
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -708,13 +800,24 @@ public class inputChat : MonoBehaviour
                     if (!String.IsNullOrEmpty(strData))
                     {
                         File.WriteAllText(outputPath, string.Empty);
-                        Match m = Regex.Match(strData, @"\[\'\S+\'\]", RegexOptions.IgnoreCase);
+                        Match m = Regex.Match(strData, @"\[\'.+\'\]", RegexOptions.IgnoreCase);
                         if (m.Success)
                         {
                             string toMessage = Regex.Replace(m.Value, @"[\[,',\]]", string.Empty);
                             //print(text);
                             //停止現有的AI對話與音輸出
                             Speaker.Mute();
+
+                            //強制結束播放（不用等回傳到）ChatGPT的時間
+                            var check_num1 = ClassSim.MatchKeywordSim(callAI, toMessage);
+                            if (check_num1 >= 0.5)
+                            {
+                                Rec = 0;
+                                //停止現有的AI對話與音輸出
+                                Speaker.Mute();
+                                return;
+                            }
+
                             //chatGPT請求 (做任務分類)
                             if (gmailObject == null)
                                 toSendData_T(toMessage);
@@ -778,7 +881,10 @@ public class inputChat : MonoBehaviour
                         toSendData(originalText);
                         break;
                     case 4:
-                        gmailObject = new Gmail(chatGPT, this);
+                        Gmail.MailBoxData mailBoxData = selectLestMailBox();
+                        if (mailBoxData == null)
+                            break;
+                        gmailObject = new Gmail(chatGPT, this, mailBoxData);
                         gmailObject.toSendData(originalText);
                         //toSendData_G(originalText);
                         UnityEngine.Debug.Log("傳送郵件");

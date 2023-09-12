@@ -8,44 +8,59 @@ using System.Text;
 using System.Threading;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using System.Text.RegularExpressions;
+
 public class PythonScript
 {
 
-    private static string translaterPath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"C:python.exe" : @"/Users/wangyikai/opt/anaconda3/bin/python3.9";
+    private static string translaterPath = 
+        Application.platform == RuntimePlatform.WindowsPlayer || 
+        Application.platform == RuntimePlatform.WindowsEditor ?
+        @"C:python.exe" : 
+        @"/Users/wangyikai/opt/anaconda3/bin/python3.9";
     //python腳本資料夾
     //private static string basePath = @"Assets\Python\";
-    private static string basePath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\" : @"Assets/Python/";
+    private static string basePath = 
+        Application.platform == RuntimePlatform.WindowsPlayer || 
+        Application.platform == RuntimePlatform.WindowsEditor ? 
+        @"Assets\Python\" : 
+        @"Assets/Python/";
+
+    private static string outputPath =
+        Application.platform == RuntimePlatform.WindowsPlayer ||
+        Application.platform == RuntimePlatform.WindowsEditor ?
+        @"Assets\Python\pythonOutput.txt" :
+        @"Assets/Python/pythonOutput.txt";
     static string ConvertWindowsToMacOSPath(string windowsPath)
     {
-    	if(Path.DirectorySeparatorChar == '/')
-    	{
-	        string fullPath = Path.GetFullPath(windowsPath);
-    	    string macOSPath = fullPath.Replace('\\', Path.DirectorySeparatorChar);
-	        return macOSPath;
-    	}else return windowsPath;
+        if (Path.DirectorySeparatorChar == '/' && 
+            !(Application.platform == RuntimePlatform.WindowsPlayer || 
+            Application.platform == RuntimePlatform.WindowsEditor)
+        ){
+            string fullPath = Path.GetFullPath(windowsPath);
+            string macOSPath = fullPath.Replace('\\', Path.DirectorySeparatorChar);
+            return macOSPath;
+        }else return windowsPath;
     }
 
     // Unity 調用 Python
     // 
     public static IEnumerator Search(
         System.Action<string> _callback,
-         //異步回傳函式
+        //異步回傳函式
         string programName,
-                                         //chatGPT.getApiKey()
-                                         //serpapi_Key
+        //chatGPT.getApiKey()
+        //serpapi_Key
         params string[] argvs            //給 python 的其他參數
     )
-
-
     {
-
-        string pyScriptPath ;
-        string pyScriptData = "";
+        string pyScriptPath;
+        //string pyScriptData = "";
         if (programName == "Search")
         {
             pyScriptPath = basePath + "Search.py";
         }
-        else if(programName=="gmail")
+        else if (programName == "gmail")
         {
             pyScriptPath = basePath + "gmail.py";
         }
@@ -55,22 +70,13 @@ public class PythonScript
             yield break;
         }
 
-        bool first = true;
         // 判斷是否有參數
         if (argvs != null)
         {
             // 添加參數
             foreach (string item in argvs)
             {
-                if (first)
-                {
-                    first = false;
-                    pyScriptData = item;
-                }
-                else
-                {
-                    pyScriptData += " " + item;
-                }
+                pyScriptPath += " " + item;
             }
         }
 
@@ -80,12 +86,12 @@ public class PythonScript
         Process process = new Process();
 
         // ptython 的直譯器位置 python.exe
-        //process.StartInfo.FileName = translaterPath;
-        process.StartInfo.FileName = pyScriptPath;
+        process.StartInfo.FileName = translaterPath;
+        //process.StartInfo.FileName = pyScriptPath;
         //process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding(950); //回傳正確的中文編碼
         process.StartInfo.UseShellExecute = false;
-        process.StartInfo.Arguments = pyScriptData;       // (exe用) 純參數
-        //process.StartInfo.Arguments = pyScriptPath;     // 路徑+參數
+        //process.StartInfo.Arguments = pyScriptData;       // (exe用) 純參數
+        process.StartInfo.Arguments = pyScriptPath;     // 路徑+參數
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;
@@ -124,9 +130,10 @@ public class PythonScript
     // Unity 調用 Python
     // 
     public static IEnumerator SearchEmail(
-        System.Action<string> _callback,
+        System.Action<string, string> _callback,
         //異步回傳函式
         string programName,
+        string backData,
         //chatGPT.getApiKey()
         //serpapi_Key
         params string[] argvs            //給 python 的其他參數
@@ -137,6 +144,10 @@ public class PythonScript
         if (programName == "DataBase")
         {
             pyScriptPath = basePath + "DataBase.py";
+        }
+        else if (programName == "MailDataBase")
+        {
+            pyScriptPath = basePath + "DataBase_MailDataBase.py";
         }
         else
         {
@@ -178,7 +189,9 @@ public class PythonScript
             UnityEngine.Debug.Log("Wait...");
             yield return new WaitForSeconds(1f);//停止1秒
         }
-        _callback(answer);
+
+        _callback(answer, backData);
+
         // 結果輸出委託
         void GetData(object sender, DataReceivedEventArgs e)
         {

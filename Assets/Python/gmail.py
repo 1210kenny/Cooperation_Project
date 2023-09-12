@@ -22,9 +22,8 @@ if __name__ == '__main__':
     toolkit = ZapierToolkit.from_zapier_nla_wrapper(zapier)
     agent = initialize_agent(toolkit.get_tools(), llm, agent="zero-shot-react-description", verbose=True)
 
-
-
     ans = hw(que)
+    sys.stdout.reconfigure(encoding='utf-8')
     print(ans)
 
 

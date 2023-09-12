@@ -26,5 +26,6 @@ if __name__ == '__main__':
     agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=False)
 
     ans = hw(que)
+    sys.stdout.reconfigure(encoding='utf-8')
     print(ans)
 

@@ -83,4 +83,5 @@ vectorstore = Chroma.from_documents(texts, embeddings)
 qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(temperature=0), vectorstore.as_retriever())
 query = sys.argv[2]
 result = qa({"question": query, 'chat_history': []})
+sys.stdout.reconfigure(encoding='utf-8')
 print(result['answer'])
