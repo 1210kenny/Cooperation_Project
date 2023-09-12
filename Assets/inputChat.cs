@@ -799,6 +799,7 @@ public class inputChat : MonoBehaviour
                     var strData = File.ReadAllText(outputPath);
                     if (!String.IsNullOrEmpty(strData))
                     {
+                        inputvoice = true;
                         File.WriteAllText(outputPath, string.Empty);
                         Match m = Regex.Match(strData, @"\[\'.+\'\]", RegexOptions.IgnoreCase);
                         if (m.Success)
@@ -968,7 +969,7 @@ public class inputChat : MonoBehaviour
                 inputvoice = false;
             }
 
-            if (timer >= 30f && inputvoice == false)
+            if (timer >= 60f && inputvoice == false)
             {
                 SceneManager.LoadScene(0);
                 isCounting = false;
