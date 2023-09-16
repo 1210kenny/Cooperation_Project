@@ -16,6 +16,8 @@ using System.Threading;
 using UnityEngine.SceneManagement;
 using System.Timers;
 using static Gmail;
+using DG.Tweening;
+
 
 public class inputChat : MonoBehaviour
 {
@@ -440,10 +442,16 @@ public class inputChat : MonoBehaviour
         //chatGPT狀態 (空閒)
         chatGPT.taskState = 0;
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
+        var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+        // 設置初始縮放為零
+        itemGround.transform.localScale = Vector3.zero;
+        // 獲取對話框的RectTransform组件
+        RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+        // 設置對話框文字內容
+        Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+        dialogText.text = _callback;
+        // 動畫
+        dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
         //AI語音播放
         speak(_callback);
@@ -475,10 +483,16 @@ public class inputChat : MonoBehaviour
         //chatGPT狀態 (空閒)
         //chatGPT.taskState = 0;
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
+        var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+        // 設置初始縮放為零
+        itemGround.transform.localScale = Vector3.zero;
+        // 獲取對話框的RectTransform组件
+        RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+        // 設置對話框文字內容
+        Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+        dialogText.text = _callback;
+        // 動畫
+        dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
         //AI語音播放
         speak(_callback);
@@ -518,19 +532,33 @@ public class inputChat : MonoBehaviour
         { }
         else if (task == 2)
         {
-            var vChatWindow = chatWindow.transform.localPosition;
-            var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
-            itemGround.transform.parent = chatWindow.transform;
-            itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = originalText;
+            //建構對話條
+            var itemGround = Instantiate(UserChatItem, chatWindow.transform);
+            // 設置初始縮放為零
+            itemGround.transform.localScale = Vector3.zero;
+            // 獲取對話框的RectTransform组件
+            RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+            // 設置對話框文字內容
+            Text dialogText = itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>();
+            dialogText.text = originalText;
             itemGround.transform.GetChild(1).GetComponent<Image>().color = new UnityEngine.Color(1, 0.8056f, 0.4332f, 0.684f);//0.0038
+            // 動畫
+            dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
             checkChatsBoxToDelete();
         }
         else
         {
-            var vChatWindow = chatWindow.transform.localPosition;
-            var itemGround = Instantiate(UserChatItem, vChatWindow, Quaternion.identity);
-            itemGround.transform.parent = chatWindow.transform;
-            itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>().text = originalText;
+            //建構對話條
+            var itemGround = Instantiate(UserChatItem, chatWindow.transform);
+            // 設置初始縮放為零
+            itemGround.transform.localScale = Vector3.zero;
+            // 獲取對話框的RectTransform组件
+            RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+            // 設置對話框文字內容
+            Text dialogText = itemGround.transform.GetChild(1).transform.GetChild(0).GetComponent<Text>();
+            dialogText.text = originalText;
+            // 動畫
+            dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
             checkChatsBoxToDelete();
         }
 
@@ -574,10 +602,16 @@ public class inputChat : MonoBehaviour
             chatGPT.taskState = 0;
 
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = _callback;
+        var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+        // 設置初始縮放為零
+        itemGround.transform.localScale = Vector3.zero;
+         // 獲取對話框的RectTransform组件
+        RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+        // 設置對話框文字內容
+        Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+        dialogText.text = _callback;
+        // 動畫
+        dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack); 
         checkChatsBoxToDelete();
         //AI語音播放
         speak(_callback);
@@ -672,10 +706,16 @@ public class inputChat : MonoBehaviour
         gmailObject = null;
         String text = "好的。已取消寄送Email。";
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+        var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+        // 設置初始縮放為零
+        itemGround.transform.localScale = Vector3.zero;
+        // 獲取對話框的RectTransform组件
+        RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+        // 設置對話框文字內容
+        Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+        dialogText.text = text;
+        // 動畫
+        dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
         //AI語音播放
         speak(text);
@@ -687,10 +727,16 @@ public class inputChat : MonoBehaviour
         gmailObject = null;
         String text = "好的。";
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+        var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+        // 設置初始縮放為零
+        itemGround.transform.localScale = Vector3.zero;
+        // 獲取對話框的RectTransform组件
+        RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+        // 設置對話框文字內容
+        Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+        dialogText.text = text;
+        // 動畫
+        dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
         //AI語音播放
         speak(text);
@@ -702,10 +748,16 @@ public class inputChat : MonoBehaviour
         gmailObject = null;
         String text = "好的。";
         //建構對話條
-        var vChatWindow = chatWindow.transform.localPosition;
-        var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-        itemGround.transform.parent = chatWindow.transform;
-        itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+        var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+        // 設置初始縮放為零
+        itemGround.transform.localScale = Vector3.zero;
+        // 獲取對話框的RectTransform组件
+        RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+        // 設置對話框文字內容
+        Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+        dialogText.text = text;
+        // 動畫
+        dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
         //AI語音播放
         speak(text);
@@ -769,10 +821,16 @@ public class inputChat : MonoBehaviour
             gmailObject = null;
             String text = "尚未設置好信箱權限，故無法執行此操作。";
             //建構對話條
-            var vChatWindow = chatWindow.transform.localPosition;
-            var itemGround = Instantiate(GptChatItem, vChatWindow, Quaternion.identity);
-            itemGround.transform.parent = chatWindow.transform;
-            itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>().text = text;
+            var itemGround = Instantiate(GptChatItem, chatWindow.transform);
+            // 設置初始縮放為零
+            itemGround.transform.localScale = Vector3.zero;
+            // 獲取對話框的RectTransform组件
+            RectTransform dialogRect = itemGround.GetComponent<RectTransform>();
+            // 設置對話框文字內容
+            Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
+            dialogText.text = text;
+            // 動畫
+            dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
             checkChatsBoxToDelete();
             //AI語音播放
             speak(text);
