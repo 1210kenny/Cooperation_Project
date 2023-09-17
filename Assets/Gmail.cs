@@ -306,7 +306,6 @@ public class Gmail
                     chatGPT.getApiKey(),
                     inputChat.zapier_Key,
                     $"寄送一封信件給{MailData.addressee_Email}；信件標題：{MailData.subject}；信件內容：{MailData.mailText}"));
-                    inputChat.SendMailDone();
                     break;
                 case 5:
                     inputChat.CancelSendMail();
@@ -419,6 +418,7 @@ public class Gmail
         {
             AiSpack($"找不到 {Name} 的信箱。");
             threadLocker = false;
+            inputChat.SendMailDone();
         }
     }
 

@@ -471,6 +471,9 @@ public class inputChat : MonoBehaviour
             File.Create("MyFile.json");
             File.WriteAllText("MyFile.json", outputString);
         }
+        //重新計時
+        timer = 0f;
+        countingStop = false;
     }
 
     //GPT訊息 回傳動作
@@ -512,6 +515,7 @@ public class inputChat : MonoBehaviour
         //    File.Create("MyFile.json");
         //    File.WriteAllText("MyFile.json", outputString);
         //}
+        SendMailDone();
     }
 
     //GPT訊息 回傳動作 (任務辨識)
@@ -585,9 +589,12 @@ public class inputChat : MonoBehaviour
             print($"now_act: {now_act}");
             print($"now_face: {now_face}");
         }
-        if (isEnd)
+        if ((isEnd && !equipmentMode) || Regex.Match(sendMessage,@"\(裝置狀態\)").Success)
         {
             print($"ChatGPT - 判斷對話結束");
+            //重新計時
+            timer = 0f;
+            countingStop = false;
         }
         //根據回傳的數字決定音調、表情、動作
         Speaker.ChangeEmotion(now_emo);
@@ -698,6 +705,10 @@ public class inputChat : MonoBehaviour
     {
         chatGPT.taskState = 0;
         gmailObject = null;
+
+        //重新計時
+        timer = 0f;
+        countingStop = false;
     }
 
     public void CancelSendMail()
@@ -719,6 +730,10 @@ public class inputChat : MonoBehaviour
         checkChatsBoxToDelete();
         //AI語音播放
         speak(text);
+
+        //重新計時
+        timer = 0f;
+        countingStop = false;
     }
 
     public void CancelMailMode()
@@ -740,6 +755,10 @@ public class inputChat : MonoBehaviour
         checkChatsBoxToDelete();
         //AI語音播放
         speak(text);
+
+        //重新計時
+        timer = 0f;
+        countingStop = false;
     }
 
     public void CancelChangeMailBox()
@@ -761,6 +780,10 @@ public class inputChat : MonoBehaviour
         checkChatsBoxToDelete();
         //AI語音播放
         speak(text);
+
+        //重新計時
+        timer = 0f;
+        countingStop = false;
     }
 
     private Gmail.MailBoxData selectLestMailBox()
@@ -857,11 +880,12 @@ public class inputChat : MonoBehaviour
                     var strData = File.ReadAllText(outputPath);
                     if (!String.IsNullOrEmpty(strData))
                     {
-                        inputvoice = true;
                         File.WriteAllText(outputPath, string.Empty);
                         Match m = Regex.Match(strData, @"\[\'.+\'\]", RegexOptions.IgnoreCase);
                         if (m.Success)
                         {
+                            //重新計時
+                            timer = 0f;
                             string toMessage = Regex.Replace(m.Value, @"[\[,',\]]", string.Empty);
                             //print(text);
                             //停止現有的AI對話與音輸出
@@ -879,7 +903,11 @@ public class inputChat : MonoBehaviour
 
                             //chatGPT請求 (做任務分類)
                             if (gmailObject == null)
+                            {   
+                                //暫停計時
+                                countingStop = true;
                                 toSendData_T(toMessage);
+                            }
                             else
                                 gmailObject.toSendData(toMessage);
                         }
@@ -1010,6 +1038,8 @@ public class inputChat : MonoBehaviour
 
         }
     }
+
+    private bool countingStop = false; // 計時暫停
     private bool isCounting = true; // 用來檢測是否正在計時
     private float timer = 0f; // 計時器
     IEnumerator MonitorRec()
@@ -1018,19 +1048,15 @@ public class inputChat : MonoBehaviour
         {
             yield return new WaitForSeconds(1f); // 每秒等待一次
 
-            timer += 1f; // 計時遞增
-
-            // 如果Rec變為2，重新計時
-            if (inputvoice == true)
+            if (!countingStop)
             {
-                timer = 0f;
-                inputvoice = false;
-            }
+                timer += 1f; // 計時遞增
 
-            if (timer >= 60f && inputvoice == false)
-            {
-                SceneManager.LoadScene(0);
-                isCounting = false;
+                if (timer >= 60f && inputvoice == false)
+                {
+                    SceneManager.LoadScene(0);
+                    isCounting = false;
+                }
             }
         }
     }
