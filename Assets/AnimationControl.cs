@@ -1,16 +1,40 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AnimationControl : MonoBehaviour
 {
     public Animator animator;
+    string characterName;
+    public int Index;
+    public charcaterselection charcaterselection;
 
+    private int index;
+    private string[] characterNames = { "小花", "the3Dmodel","elsa"};
     public void Start()
     {
-        // 获取Animator组件
-        animator = GetComponent<Animator>();
+        //animator =GetComponent<Animator>();
+     index = PlayerPrefs.GetInt("CharacterSelected");
+     UnityEngine.Debug.Log("CharacterSelected index in animationcontroll: " + index);
+     //charcaterselection.OnIndexConfirmed += HandleIndexConfirmed;
+     
+     //animator = GameObject.Find(characterNames[index]).GetComponent<Animator>();
+    if(index==0){
+        animator = GameObject.Find("小花").GetComponent<Animator>();
+    }else if(index==1){
+        animator = GameObject.Find("the3Dmodel").GetComponent<Animator>();
+    }else if(index==2){
+        animator = GameObject.Find("alice").GetComponent<Animator>();
     }
+    
+     //}
+         
+    }
+    
+    
+
+   
     public void set_face(string input){
         switch (input)
         {
