@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class menulist : MonoBehaviour
 {
-    public GameObject menu;
 
     void Start()
     {
@@ -19,13 +18,12 @@ public class menulist : MonoBehaviour
     }
     public void Return()
     {
-        menu.SetActive(false);
-        Time.timeScale = (1);
+        
     }
     public void Restart()
     {
         SceneManager.LoadScene(1);
-        Time.timeScale = (1);
+        
     }
     public void Exit()
     {
@@ -34,6 +32,6 @@ public class menulist : MonoBehaviour
     public void change()
     {
         SceneManager.LoadScene(2);
-        Time.timeScale = (1);
+        
     }
 }
