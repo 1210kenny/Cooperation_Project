@@ -28,6 +28,11 @@ public class inputChat : MonoBehaviour
     //對話條
     public GameObject UserChatItem;
 
+    //start 動畫
+    private bool ready = false;
+    public Animator balckfadeAni;
+    public Animator loadingAni;
+    
     //輸入送出按鍵
     //public Button yourButton;
     //用戶 輸入框
@@ -81,6 +86,7 @@ public class inputChat : MonoBehaviour
 
     private string modePath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\speechRecognition\mode.txt" : @"Assets/Python/speechRecognition/mode.txt";
     private string outputPath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\speechRecognition\output.txt" : @"Assets/Python/speechRecognition/output.txt";
+    private string readyPath = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor ? @"Assets\Python\speechRecognition\ready.txt" : @"Assets/Python/speechRecognition/ready.txt";
 
     //搜索引擎API key
     string serpapi_Key = "";
@@ -128,6 +134,7 @@ public class inputChat : MonoBehaviour
             print("No have Key file.");
         }
         //清除已存在語音輸出文件中的資料
+        File.WriteAllText(readyPath, string.Empty);
         File.WriteAllText(outputPath, string.Empty);
         //python 辨識說話的進程
         StartCoroutine(PythonScript.speechRecognition(talkProcess, ApiKey[1].key, ApiKey[1].region));
@@ -863,6 +870,22 @@ public class inputChat : MonoBehaviour
 
     void Update()
     {
+        if (!ready)
+        {
+            try
+            {
+                var str = File.ReadAllText(readyPath);
+                if (!String.IsNullOrEmpty(str))
+                {
+                    ready = true;
+                    balckfadeAni.SetBool("ready", true);
+                    loadingAni.SetBool("ready", true);
+                }
+            }
+            catch { }
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             speechRecognitionProcess.Kill();
@@ -1048,7 +1071,7 @@ public class inputChat : MonoBehaviour
         {
             yield return new WaitForSeconds(1f); // 每秒等待一次
 
-            if (!countingStop)
+            if (!countingStop && ready)
             {
                 timer += 1f; // 計時遞增
 

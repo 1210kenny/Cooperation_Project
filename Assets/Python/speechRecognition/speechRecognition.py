@@ -155,6 +155,16 @@ recorder.listen_in_background(source, record_callback, phrase_time_limit=record_
 
 # Cue the user that we're ready to go.
 # print("Model loaded. Start listening\n")
+readyGo = True
+while readyGo:
+    try:
+        readyF = open('ready.txt', 'w', encoding='utf8')
+        readyF.write("is ready")
+        readyF.close()
+        readyGo = False
+    except:
+        readyF.close()
+        readyGo = True
 
 while True:
     try:

@@ -1355,6 +1355,8 @@ MonoBehaviour:
   chatWindow: {fileID: 265928829}
   GptChatItem: {fileID: 6720361810482357582, guid: 4e5642d870117e64e8da0f6fbe7de556, type: 3}
   UserChatItem: {fileID: 7004370483954194774, guid: 467f5a6eab972884db2fcba9753dac80, type: 3}
+  balckfadeAni: {fileID: 1461483521}
+  loadingAni: {fileID: 1687937812}
   chatGPT: {fileID: 208691323}
   TxtFile: {fileID: 0}
   animationControl: {fileID: 858347734}
@@ -1372,7 +1374,6 @@ MonoBehaviour:
   minTimeBetweenAnimations: 10
   maxTimeBetweenAnimations: 20
   inputvoice: 0
-  valueToPass: 0
 --- !u!114 &208691326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4741,7 +4742,7 @@ MonoBehaviour:
   BlendShapeAvatar: {fileID: 11400000, guid: ddce9f74a512ab14ab1bad66224b2466, type: 2}
 --- !u!95 &888767223
 Animator:
-  serializedVersion: 5
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4758,8 +4759,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &888767224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7066,7 +7066,7 @@ RectTransform:
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1461483521
 Animator:
-  serializedVersion: 5
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7083,8 +7083,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &1461483522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7989,7 +7988,7 @@ RectTransform:
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1687937812
 Animator:
-  serializedVersion: 5
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -8006,8 +8005,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &1687937813
 MonoBehaviour:
   m_ObjectHideFlags: 0
