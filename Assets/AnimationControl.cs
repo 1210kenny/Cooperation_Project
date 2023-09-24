@@ -26,6 +26,8 @@ public class AnimationControl : MonoBehaviour
         animator = GameObject.Find("the3Dmodel").GetComponent<Animator>();
     }else if(index==2){
         animator = GameObject.Find("alice").GetComponent<Animator>();
+    }else if(index==3){
+        animator = GameObject.Find("evan").GetComponent<Animator>();
     }
     
      //}

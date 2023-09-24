@@ -13,8 +13,8 @@ public class Command_control
         bool successful = false;
         switch(index){
             case "1":
-                //LightControl.Switch();
-                VoiceTest.test1();
+                LightControl.Switch();
+                //VoiceTest.test1();
                 successful = true;
                 break;
             case "2":

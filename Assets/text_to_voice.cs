@@ -20,13 +20,31 @@ public class text_to_voice : MonoBehaviour
     public static SpeechSynthesizer synthesizer;
     public string speak_style = "assistant";
     public bool isSpeaking = false;
+    private int index;
     [SerializeField]
     private AnimationControl animationControl;
     public text_to_voice(string key, string region)
     {
+        index = PlayerPrefs.GetInt("CharacterSelected");
+        //UnityEngine.Debug.Log("CharacterSelected index in text2voice: " + index);
         config_ = SpeechConfig.FromSubscription(key, region);
+        if(index==0){
         config_.SpeechSynthesisVoiceName = "zh-CN-XiaoxiaoNeural";
+        }
+        //zh-CN-XiaoxiaoNeural
+        else if(index==1){
+        config_.SpeechSynthesisVoiceName = "zh-CN-XiaomoNeural";
+        }//zh-CN-XiaohanNeural
+        //zh-CN-XiaomoNeural
+        //zh-CN-YunyeNeural
+        else if(index==2){
+        config_.SpeechSynthesisVoiceName = "zh-CN-XiaohanNeural";
+        }
+         if(index==3){
+        config_.SpeechSynthesisVoiceName = "zh-CN-YunyeNeural";
+        }//zh-CN-YunyeNeural
         synthesizer = new SpeechSynthesizer(config_);
+        UnityEngine.Debug.Log("CharacterSelected index in voice: " + index);
     }
 
     public void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text)
@@ -64,10 +82,12 @@ public class text_to_voice : MonoBehaviour
     // 非同步方法用於執行語音合成
     async public void readString(string text, string style, Action onCompleted)
     {
+       
         var ssml = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='zh-CN'>" +
-            $"<voice name='zh-CN-XiaoxiaoNeural' style='{style}'>" +
+            $"<voice name='{config_.SpeechSynthesisVoiceName}' style='{speak_style}'>" +
             $"{text}" +
             "</voice></speak>";
+        
 
         using (var result = await synthesizer.SpeakSsmlAsync(ssml))
         {
@@ -91,6 +111,7 @@ public class text_to_voice : MonoBehaviour
                 }
             }
         }
+        speak_style="assistant";
     }
     public void ChangeEmotion(string emotion)
     {
@@ -144,6 +165,14 @@ public class text_to_voice : MonoBehaviour
             case "16":
                 speak_style = "serious";
                 break;
+            case"17":
+                speak_style="embarrassed";
+                break;
+            case"18":
+                speak_style="depressed";
+
+                break;
+            
             default:
                 speak_style = "assistant";
                 break;
