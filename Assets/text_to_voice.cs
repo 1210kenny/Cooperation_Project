@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CognitiveServices.Speech;
@@ -119,28 +119,21 @@ public class text_to_voice : MonoBehaviour
         {
             case "1":
                 speak_style = "affectionate";
-                UnityEngine.Debug.Log("愉悅" + index);
                 break;
-                
             case "2":
                 speak_style = "angry";
-                UnityEngine.Debug.Log("情緒:" +speak_style+ "角色編號:"+index);
                 break;
             case "3":
                 speak_style = "assistant";
-                UnityEngine.Debug.Log("情緒:" +speak_style+ "角色編號:"+index);
                 break;
             case "4":
                 speak_style = "calm";
-                UnityEngine.Debug.Log("情緒:" +speak_style+ "角色編號:"+index);
                 break;
             case "5":
                 speak_style = "chat";
-                UnityEngine.Debug.Log("情緒:" +speak_style+ "角色編號:"+index);
                 break;
             case "6":
                 speak_style = "cheerful";
-                UnityEngine.Debug.Log("情緒:" +speak_style+ "角色編號:"+index);
                 break;
             case "7":
                 speak_style = "customerService";
@@ -185,5 +178,4 @@ public class text_to_voice : MonoBehaviour
                 break;
         }
     }
-    
 }
