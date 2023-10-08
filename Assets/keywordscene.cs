@@ -17,7 +17,7 @@ public class keywordscene : MonoBehaviour
     {
 
         string scriptDirectory = System.IO.Path.GetDirectoryName(Application.dataPath);
-        string keywordModelPath = "Assets\\AssetsKeywordModels\\0ac84afd-526e-4375-b32d-8c28db473034.table";
+        string keywordModelPath = "Assets\\AssetsKeywordModels\\b29ba0dc-f3f9-4de2-9f5f-3e7c1456a9f1.table";
         keywordModelPath = ConvertWindowsToMacOSPath(keywordModelPath);
         Debug.Log(keywordModelPath);
         keywordModel = KeywordRecognitionModel.FromFile(keywordModelPath);
@@ -44,6 +44,8 @@ public class keywordscene : MonoBehaviour
             if (result.Reason == ResultReason.RecognizedKeyword)
             {
                 // ���Ѩ�����r�A�o�̥i�H�K�[�����������޿�
+                PlayerPrefs.SetInt("CharacterSelected", 2);
+                PlayerPrefs.Save();
                 SceneManager.LoadScene(1);
             }
         }
