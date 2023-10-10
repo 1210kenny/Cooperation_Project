@@ -34,4 +34,9 @@ public class menulist : MonoBehaviour
         SceneManager.LoadScene(2);
         
     }
+    public void start()
+    {
+        SceneManager.LoadScene(0);
+
+    }
 }
