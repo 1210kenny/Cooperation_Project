@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -56,6 +56,10 @@ public class inputChat : MonoBehaviour
     //  當前狀態
     private string now_emo, now_act, now_face;
     //上次回傳訊息
+
+    private string now_time;
+    private DateTime currenttime;
+    //  當前狀態
     private string last_callback = "fjweiofwoanow;iefnoiwefnowfnowe";
     //AI暫停播放關鍵字
     private const string callAI = "暫停播放";
@@ -162,9 +166,9 @@ public class inputChat : MonoBehaviour
         StartCoroutine(MonitorRec());
 
         //chatGPT(聊天) 預設角色
-        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。"));
+        chatGPT.m_DataList.Add(new SendData("system", "我是生活幫手，可以回答任何問題；同時也是一個可以控制設備AI，在接收命令時，只表示願意執行即可，等待後續輸入再根據(裝置狀態)做回應，若(裝置狀態)是失敗的，請根據狀態描述提示用戶可能的錯誤原因。我知道現在的時間和日期。"));
         chatGPT.m_DataList.Add(new SendData("system", "我會在結尾輸出該次對話的情緒及動作、表情在括弧中，輸出規則為（情緒、動作、表情），請使用數字編號回答，" +
-            "情緒：1.深情、2.憤怒、3.助理、4.冷靜、5.聊天、6.快樂、7.客戶服務、8.不滿、9.恐懼、10.友好、11.溫柔、12.抒情、13.新聞廣播、14.詩歌朗誦、15.悲傷、16.嚴肅、17.害羞；" +
+            "情緒：1.深情、2.憤怒、3.助理、4.冷靜、5.聊天、6.快樂、7.客戶服務、8.不滿、9.恐懼、10.友好、11.溫柔、12.抒情、13.新聞廣播、14.詩歌朗誦、15.悲傷、16.嚴肅、17.害羞、18.沮喪；" +
             "動作：1.普通地站著、2.雙手前後擺動顯得感到有點無聊、3.抱胸用力跺腳非常生氣、4.快速微微正式鞠躬、5.身體傾斜很不正式的鞠躬、6.低頭踢腳有點難過、7.大力揮手、8.打哈欠以及伸懶腰、9.開心的晃動身體與手臂、10.伸展手臂、11.雀躍的搖晃手臂與身體、12.興奮的小跳；" +
             "表情：1.微笑、2.覺得好笑的笑臉（眼睛沒有完全閉起來，嘴巴也沒有張開）、3.生氣、4.哀傷、5.驚訝、6.覺得非常好笑的笑臉（眼睛完全閉起、嘴巴微微張開）；" +
             "範例：「（6、2、2）」、「（3、4、1）」"));
@@ -439,6 +443,7 @@ public class inputChat : MonoBehaviour
             _msg));
     }
 
+
     //GPT訊息 回傳動作 (網路查詢)
     void CallBack_I(string _callback)
     {
@@ -457,6 +462,7 @@ public class inputChat : MonoBehaviour
         // 設置對話框文字內容
         Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
         dialogText.text = _callback;
+        UnityEngine.Debug.Log("時間"+System.DateTime.Now);
         // 動畫
         dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
@@ -501,6 +507,7 @@ public class inputChat : MonoBehaviour
         // 設置對話框文字內容
         Text dialogText = itemGround.transform.GetChild(0).transform.GetChild(0).GetComponent<Text>();
         dialogText.text = _callback;
+        UnityEngine.Debug.Log("時間"+System.DateTime.Now);
         // 動畫
         dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         checkChatsBoxToDelete();
@@ -524,6 +531,25 @@ public class inputChat : MonoBehaviour
         //}
         SendMailDone();
     }
+
+     public void toSendData_time(string _msg)
+    {
+
+        DateTime currenttime=System.DateTime.Now;
+        _msg += "現在的時間是"+currenttime+"，請簡單回答";
+        UnityEngine.Debug.Log("11時間"+currenttime);
+        //取得輸入訊息309
+        //string _msg = chatInput.text;
+        print(_msg);
+        //清空輸入框
+        //chatInput.text = "";
+        //建構對話條
+
+        StartCoroutine(TurnToLastLine());
+        //POST GPT訊息
+        StartCoroutine(chatGPT.GetPostData(_msg, CallBack));
+    }
+
 
     //GPT訊息 回傳動作 (任務辨識)
     private void CallBack_T(string _callback, string originalText)
@@ -555,6 +581,7 @@ public class inputChat : MonoBehaviour
             itemGround.transform.GetChild(1).GetComponent<Image>().color = new UnityEngine.Color(1, 0.8056f, 0.4332f, 0.684f);//0.0038
             // 動畫
             dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+            UnityEngine.Debug.Log("時間"+System.DateTime.Now);
             checkChatsBoxToDelete();
         }
         else
@@ -626,6 +653,7 @@ public class inputChat : MonoBehaviour
         dialogText.text = _callback;
         // 動畫
         dialogRect.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack); 
+        UnityEngine.Debug.Log("時間"+System.DateTime.Now);
         checkChatsBoxToDelete();
         //AI語音播放
         speak(_callback);
@@ -634,7 +662,14 @@ public class inputChat : MonoBehaviour
 
 
         //存取現有對話紀錄
+        DateTime currenttime=System.DateTime.Now;
         var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
+       
+     
+       
+       
+        UnityEngine.Debug.Log("309時間"+currenttime);
+        var outputString1 = JsonUtility.ToJson(currenttime);
         try
         {
             File.WriteAllText("MyFile.json", outputString);
@@ -999,6 +1034,10 @@ public class inputChat : MonoBehaviour
                         //toSendData_G(originalText);
                         UnityEngine.Debug.Log("傳送郵件");
                         break;
+                    case 5:
+                        toSendData_time(originalText);
+                        break;
+                        
                     case 3: //時效性問答 or 網路查詢
                             //print("需使用網路查詢");
                         toSendData_I(originalText);
