@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class menulist : MonoBehaviour
 {
-
     void Start()
     {
         
