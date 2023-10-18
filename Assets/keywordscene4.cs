@@ -18,7 +18,7 @@ public class keywordscene4 : MonoBehaviour
     {
 
         string scriptDirectory = System.IO.Path.GetDirectoryName(Application.dataPath);
-        string keywordModelPath = "Assets\\AssetsKeywordModels\\ef50debb-5509-4805-9211-c7f3a5e095c1.table";
+        string keywordModelPath = "Assets\\AssetsKeywordModels\\Eddie.table";
         keywordModelPath = ConvertWindowsToMacOSPath(keywordModelPath);
         Debug.Log(keywordModelPath);
         keywordModel = KeywordRecognitionModel.FromFile(keywordModelPath);

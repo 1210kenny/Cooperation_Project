@@ -18,7 +18,7 @@ public class keywordscene2 : MonoBehaviour
     {
 
         string scriptDirectory = System.IO.Path.GetDirectoryName(Application.dataPath);
-        string keywordModelPath = "Assets\\AssetsKeywordModels\\6785ddb2-9e33-4e56-85a0-01cd77223257.table";
+        string keywordModelPath = "Assets\\AssetsKeywordModels\\Mira.table";
         keywordModelPath = ConvertWindowsToMacOSPath(keywordModelPath);
         Debug.Log(keywordModelPath);
         keywordModel = KeywordRecognitionModel.FromFile(keywordModelPath);

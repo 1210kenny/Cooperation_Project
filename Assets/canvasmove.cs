@@ -13,7 +13,23 @@ public class canvasmove : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         canvasGroup.alpha = 0;
-        canvasGroup.blocksRaycasts = false; 
+        canvasGroup.blocksRaycasts = false;
+        // 檢查是否已經設置過應用程序的"IsFirstTime"標誌
+        if (!PlayerPrefs.HasKey("IsFirstTime"))
+        {
+            Debug.Log("使用者第一次使用");
+
+            canvasGroup.DOFade(1, showDuration);
+            canvasGroup.blocksRaycasts = true;
+
+            // 設置"IsFirstTime"標誌為true，以標記使用者已經使用過一次
+            PlayerPrefs.SetInt("IsFirstTime", 1);
+            PlayerPrefs.Save(); // 保存PlayerPrefs
+        }
+        else
+        {
+            Debug.Log("使用者不是第一次使用");
+        }
     }
 
     public void ShowCanvas()
