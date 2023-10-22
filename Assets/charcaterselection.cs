@@ -8,6 +8,7 @@ public class charcaterselection : MonoBehaviour
 {
     // Start is called before the first frame update
     private GameObject[] characterlist;
+    public GameObject[] name;
     private int index;
 
 
@@ -28,14 +29,16 @@ public class charcaterselection : MonoBehaviour
         foreach(GameObject go in characterlist)
          go.SetActive(false);
 
-         
+
         //role= index;
         //numberr=index;
 
         //first index
-        if(characterlist[index])
-          characterlist[index].SetActive(true);
-        
+        if (characterlist[index])
+        {
+            characterlist[index].SetActive(true);
+            name[index].SetActive(true);
+        }
         //sharedValue = index;
 
     }
@@ -46,6 +49,7 @@ public class charcaterselection : MonoBehaviour
 
         //off model
         characterlist[index].SetActive(false);
+        name[index].SetActive(false);
 
         index--;
         if(index<0)
@@ -55,6 +59,7 @@ public class charcaterselection : MonoBehaviour
         PlayerPrefs.SetInt("CharacterSelected",index);
         PlayerPrefs.Save(); 
         characterlist[index].SetActive(true);
+        name[index].SetActive(true);
 
     }
 
@@ -63,6 +68,7 @@ public class charcaterselection : MonoBehaviour
 
         //off model
         characterlist[index].SetActive(false);
+        name[index].SetActive(false);
 
         index++;
         if(index==characterlist.Length)
@@ -72,6 +78,7 @@ public class charcaterselection : MonoBehaviour
         PlayerPrefs.SetInt("CharacterSelected",index);
         PlayerPrefs.Save(); 
         characterlist[index].SetActive(true);
+        name[index].SetActive(true);
 
     }
 

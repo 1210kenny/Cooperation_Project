@@ -45,7 +45,7 @@ public class keywordscene3 : MonoBehaviour
 
             if (result.Reason == ResultReason.RecognizedKeyword)
             {
-                PlayerPrefs.SetInt("CharacterSelected", 0);
+                PlayerPrefs.SetInt("CharacterSelected", 2);
                 PlayerPrefs.Save();
                 SceneManager.LoadScene(1);
             }
