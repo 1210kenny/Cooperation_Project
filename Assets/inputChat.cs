@@ -979,28 +979,37 @@ public class inputChat : MonoBehaviour
                             timer = 0f;
                             string toMessage = Regex.Replace(m.Value, @"[\[,',\]]", string.Empty);
                             //print(text);
-                            //停止現有的AI對話與音輸出
-                            Speaker.Mute();
-
-                            //強制結束播放（不用等回傳到）ChatGPT的時間
-                            var check_num1 = ClassSim.MatchKeywordSim(callAI, toMessage);
-                            if (check_num1 >= 0.5)
+                            //呼叫字串比較，只要大於一定值就直接無視
+                            var check_num = ClassSim.MatchKeywordSim(last_callback, toMessage);
+                            if (check_num >= 0.5)
                             {
                                 Rec = 0;
-                                //停止現有的AI對話與音輸出
-                                Speaker.Mute();
                                 return;
                             }
+                            else{
+                                //停止現有的AI對話與音輸出
+                                Speaker.Mute();
 
-                            //chatGPT請求 (做任務分類)
-                            if (gmailObject == null)
-                            {   
-                                //暫停計時
-                                countingStop = true;
-                                toSendData_T(toMessage);
+                                //強制結束播放（不用等回傳到）ChatGPT的時間
+                                var check_num1 = ClassSim.MatchKeywordSim(callAI, toMessage);
+                                if (check_num1 >= 0.5)
+                                {
+                                    Rec = 0;
+                                    //停止現有的AI對話與音輸出
+                                    Speaker.Mute();
+                                    return;
+                                }
+
+                                //chatGPT請求 (做任務分類)
+                                if (gmailObject == null)
+                                {   
+                                    //暫停計時
+                                    countingStop = true;
+                                    toSendData_T(toMessage);
+                                }
+                                else
+                                    gmailObject.toSendData(toMessage);
                             }
-                            else
-                                gmailObject.toSendData(toMessage);
                         }
                     }
                 }
