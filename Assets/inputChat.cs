@@ -981,9 +981,10 @@ public class inputChat : MonoBehaviour
                             //print(text);
                             //呼叫字串比較，只要大於一定值就直接無視
                             var check_num = ClassSim.MatchKeywordSim(last_callback, toMessage);
-                            if (check_num >= 0.5)
+                            if (check_num >= 0.5 && isSpeaking == false)
                             {
                                 Rec = 0;
+                                File.WriteAllText(outputPath, string.Empty);
                                 return;
                             }
                             else{
