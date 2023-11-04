@@ -37,7 +37,13 @@ public class charcaterselection : MonoBehaviour
         if (characterlist[index])
         {
             characterlist[index].SetActive(true);
-            name[index].SetActive(true);
+            if (index >= 0 && index < name.Length)
+            {
+                name[index].SetActive(true);
+            }
+            else{
+                Debug.Log("index = " + index);
+            }
         }
         //sharedValue = index;
 

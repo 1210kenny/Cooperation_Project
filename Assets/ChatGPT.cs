@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public class ChatGPT : MonoBehaviour
 {
@@ -106,6 +108,56 @@ public class ChatGPT : MonoBehaviour
         public string content;
     }
 
+    public class ChatData
+    {
+        public List<SendData> target = new List<SendData>();
+    }
+    //加入資料進datalist，並控制對話紀錄長度
+    public void AddNewRecord(SendData newRecord)
+    {
+        m_DataList.Add(newRecord);
+        // 讀取CharacterSetting.json
+        string jsonA = File.ReadAllText("CharacterSetting.json");
+        ChatData chatDataA = JsonConvert.DeserializeObject<ChatData>(jsonA);
+        // 讀取ChatHistory.json
+        string jsonB = File.ReadAllText("ChatHistory.json");
+        ChatData chatDataB = JsonConvert.DeserializeObject<ChatData>(jsonB);
+        // 加入新的紀錄
+        chatDataB.target.Add(newRecord);
+
+        // 將整個列表序列化為JSON，並計算其長度（即token數量）
+        //string jsonContent = JsonConvert.SerializeObject(new ChatData { target = m_DataList });
+        int jsonContent = jsonA.Length + jsonB.Length;
+        //print("How long============" + jsonContent);
+        if (jsonContent > 3000)
+        {
+            //print("How ============" + chatDataB.target.Count);
+            // 以段落（即SendData物件）為單位，從列表開頭開始刪除，直到token數量小於5000，最多保留50條紀錄
+            while (jsonContent > 3000 && (jsonContent > 3000 || chatDataB.target.Count > 50))
+            {
+                chatDataB.target.RemoveAt(0);
+                jsonB = JsonConvert.SerializeObject(new ChatData { target = chatDataB.target });
+                jsonContent = jsonA.Length + jsonB.Length;
+                //print("How xxxxxxxxx : " + chatDataB.target.Count);
+                //print("How long tttttttttttttt : " + jsonContent);
+            }
+
+            // 存儲修改後的ChatHistory.json
+            File.WriteAllText("ChatHistory.json", jsonB);
+            // 清空m_DataList
+            m_DataList.Clear();
+            // 依序將CharacterSetting.json和ChatHistory.json加入到m_DataList
+            m_DataList.AddRange(chatDataA.target);
+            m_DataList.AddRange(chatDataB.target);
+        }
+        else
+        {
+            // 重新序列化並存儲回CharacterSetting.json
+            jsonB = JsonConvert.SerializeObject(chatDataB);
+            File.WriteAllText("ChatHistory.json", jsonB);
+        }
+    }
+
     // GPT Post訊息 (任務辨識)
     public IEnumerator GetPostData_T(
         string _postWord,   //輸入訊息
@@ -199,7 +251,7 @@ public class ChatGPT : MonoBehaviour
     {
         print(_postWord);
         //緩存發送的訊息
-        m_DataList.Add(new SendData("user", _postWord));
+        AddNewRecord(new SendData("user", _postWord));
 
         long responseCode = -1;
         while (responseCode != 200)
@@ -248,7 +300,7 @@ public class ChatGPT : MonoBehaviour
                             _backMsg = _textback.choices[0].message.content;
                         }
                         //緩存回傳訊息
-                        m_DataList.Add(new SendData("assistant", _backMsg));
+                        AddNewRecord(new SendData("assistant", _backMsg));
 
                         //返回函式 並做情緒分析
                         yield return inputAnalyze.chatGPT_mood(_backMsg, _postWord, _callback);

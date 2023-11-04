@@ -17,6 +17,7 @@ using UnityEngine.SceneManagement;
 using System.Timers;
 using static Gmail;
 using DG.Tweening;
+using Newtonsoft.Json;
 
 
 public class inputChat : MonoBehaviour
@@ -178,17 +179,49 @@ public class inputChat : MonoBehaviour
         //chatGPT(設備) 預設角色
         chatGPT.e_DataList.Add(new SendData("system", Mytxt));
 
+        //讀取現有人物設定
+        try
+        {
+            var inputString = File.ReadAllText("CharacterSetting.json");
+            if (!String.IsNullOrEmpty(inputString))
+                chatGPT.m_DataList = JsonUtility.FromJson<Serialization<SendData>>(inputString).ToList();
+        }
+        //無人物設定 則創建新檔案並儲存
+        catch (Exception e)
+        {
+            // 如果讀取文件失敗，創建一個新的文件
+            using (var fs = File.Create("CharacterSetting.json"))
+            {
+                fs.Close(); // 確保文件被關閉和釋放
+            }
+            var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
+            File.WriteAllText("CharacterSetting.json", outputString);
+        }
         //讀取現有對話紀錄
         try
         {
-            var inputString = File.ReadAllText("MyFile.json");
+            var inputString = File.ReadAllText("ChatHistory.json");
             if (!String.IsNullOrEmpty(inputString))
-                chatGPT.m_DataList = JsonUtility.FromJson<Serialization<SendData>>(inputString).ToList();
+            {
+                var dataListFromJson = JsonUtility.FromJson<Serialization<SendData>>(inputString).ToList();
+        
+                foreach(var data in dataListFromJson)
+                {
+                    chatGPT.AddNewRecord(data);
+                }
+            }
         }
         //無對話紀錄 則創建空紀錄檔案
         catch (Exception e)
         {
-            File.Create("MyFile.json");
+            using (var fs = File.Create("ChatHistory.json"))
+            {
+                fs.Close(); // 確保文件被關閉和釋放
+            }
+            //用設備的DataList來當作空的資料加入ChatHistory.json
+            List<SendData> EmptyList = new List<SendData>();
+            var outputString = JsonUtility.ToJson(new Serialization<SendData>(EmptyList));
+            File.WriteAllText("ChatHistory.json", outputString);
         }
 
         //讀取現有設備操作紀錄
@@ -409,7 +442,7 @@ public class inputChat : MonoBehaviour
 
 
         //添加對話紀錄 (紀錄Google搜尋結果)
-        chatGPT.m_DataList.Add(new SendData("user", _msg));
+        chatGPT.AddNewRecord(new SendData("user", _msg));
 
         StartCoroutine(PythonScript.Search(
             CallBack_I,
@@ -433,7 +466,7 @@ public class inputChat : MonoBehaviour
         */
 
         //添加對話紀錄 (紀錄Google搜尋結果)
-        chatGPT.m_DataList.Add(new SendData("user", _msg));
+        chatGPT.AddNewRecord(new SendData("user", _msg));
 
         StartCoroutine(PythonScript.Search(
             CallBack_G,
@@ -450,7 +483,7 @@ public class inputChat : MonoBehaviour
         print("search:" + _callback);
 
         //添加對話紀錄 (紀錄Google搜尋結果)
-        chatGPT.m_DataList.Add(new SendData("assistant", _callback));
+        chatGPT.AddNewRecord(new SendData("assistant", _callback));
         //chatGPT狀態 (空閒)
         chatGPT.taskState = 0;
         //建構對話條
@@ -473,17 +506,17 @@ public class inputChat : MonoBehaviour
 
 
         //存取現有對話紀錄
-        var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
-        try
-        {
-            File.WriteAllText("MyFile.json", outputString);
-        }
+        //var outputString = JsonUtility.ToJson(new Serialization<SendData>(chatGPT.m_DataList));
+        //try
+        //{
+        //    File.WriteAllText("MyFile.json", outputString);
+        //}
         //無對話紀錄 則創建空紀錄檔案
-        catch (Exception e)
-        {
-            File.Create("MyFile.json");
-            File.WriteAllText("MyFile.json", outputString);
-        }
+        //catch (Exception e)
+        //{
+        //    File.Create("MyFile.json");
+        //    File.WriteAllText("MyFile.json", outputString);
+        //}
         //重新計時
         timer = 0f;
         countingStop = false;
@@ -669,17 +702,17 @@ public class inputChat : MonoBehaviour
        
        
         UnityEngine.Debug.Log("309時間"+currenttime);
-        var outputString1 = JsonUtility.ToJson(currenttime);
-        try
-        {
-            File.WriteAllText("MyFile.json", outputString);
-        }
+        //var outputString1 = JsonUtility.ToJson(currenttime);
+        //try
+        //{
+        //    File.WriteAllText("MyFile.json", outputString);
+        //}
         //無對話紀錄 則創建空紀錄檔案
-        catch (Exception e)
-        {
-            File.Create("MyFile.json");
-            File.WriteAllText("MyFile.json", outputString);
-        }
+        //catch (Exception e)
+        //{
+        //    File.Create("MyFile.json");
+        //    File.WriteAllText("MyFile.json", outputString);
+        //}
     }
 
     //GPT訊息 回傳動作 (設備操作使用)
