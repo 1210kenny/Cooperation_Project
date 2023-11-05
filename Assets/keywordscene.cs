@@ -55,5 +55,4 @@ public class keywordscene : MonoBehaviour
             Debug.LogError("����r�ѧO���~�G" + ex.Message);
         }
     }
-
 }
