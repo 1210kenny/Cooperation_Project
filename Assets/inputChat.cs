@@ -42,7 +42,7 @@ public class inputChat : MonoBehaviour
     //public InputField OpenAI_Key;
     //chatGPT對話 物件
     public ChatGPT chatGPT;
-
+    public bool isrecording = false;
     //線程鎖
     private object threadLocker = new object();
     //語音辨識等待值
@@ -138,12 +138,6 @@ public class inputChat : MonoBehaviour
         {
             print("No have Key file.");
         }
-        //清除已存在語音輸出文件中的資料
-        File.WriteAllText(readyPath, string.Empty);
-        File.WriteAllText(outputPath, string.Empty);
-        //python 辨識說話的進程
-        StartCoroutine(PythonScript.speechRecognition(talkProcess, ApiKey[1].key, ApiKey[1].region));
-
         //AI語音播放器
         Speaker = new text_to_voice(ApiKey[0].key, ApiKey[0].region);
         configuration = SpeechConfig.FromSubscription(ApiKey[1].key, ApiKey[1].region);
@@ -247,7 +241,7 @@ public class inputChat : MonoBehaviour
             recognizer.Dispose();
             recognizer = null;
         }
-        speechRecognitionProcess.Kill();
+        //speechRecognitionProcess.Kill();
     }
 
     private async void InitializeSpeechRecognizer()
@@ -772,7 +766,7 @@ public class inputChat : MonoBehaviour
 
     public void Quit()
     {
-        speechRecognitionProcess.Kill();
+        //speechRecognitionProcess.Kill();
         Application.Quit();
     }
 
@@ -956,7 +950,7 @@ public class inputChat : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            speechRecognitionProcess.Kill();
+            //speechRecognitionProcess.Kill();
             Application.Quit();
         }
 
